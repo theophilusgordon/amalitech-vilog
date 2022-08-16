@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
-const User = require("../models/userModel");
+const pool = require("../startup/db");
 
-const protect = asyncHandler(async (req, res, next) => {
+const adminProtect = asyncHandler(async (req, res, next) => {
   let token;
 
   if (
@@ -17,7 +17,7 @@ const protect = asyncHandler(async (req, res, next) => {
       const verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
 
       // Get user verified token
-      req.user = await User.findById(verifiedToken.id).select("-password");
+      req.user = await pool.query("SELECT * FROM admins WHERE admin_id = $1", [verifiedToken.id]);
 
       next();
     } catch (error) {
@@ -33,13 +33,4 @@ const protect = asyncHandler(async (req, res, next) => {
   }
 });
 
-const adminProtect = (req, res, next) => {
-  if (!req.user.isAdmin) {
-    res.status(403);
-    throw new Error("Access Denied");
-  }
-
-  next();
-};
-
-module.exports = { protect, adminProtect };
+module.exports = { adminProtect };
