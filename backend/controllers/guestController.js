@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
+const { v4: uuidv4 } = require("uuid");
 const pool = require("../startup/db");
 
 // @desc: Register New Guest
@@ -16,7 +17,7 @@ const registerGuest = asyncHandler(async (req, res) => {
 
   // Check if guest already exists
   const guestExists = await pool.query(
-    "SELECT * FROM guests WHERE email = $1",
+    "SELECT * FROM guests WHERE guest_email = $1",
     [email]
   );
 
@@ -27,20 +28,20 @@ const registerGuest = asyncHandler(async (req, res) => {
 
   // Create Guest
   const guest = await pool.query(
-    "INSERT INTO guests (profile_pic, first_name, last_name, email, phone, company, user_type) VALUES($1, $2, $3, $4, $5, $6, 'guest') RETURNING *",
-    [profile_pic, first_name, last_name, email, phone, company]
+    "INSERT INTO guests (guest_uuid, guest_profile_pic, guest_first_name, guest_last_name, guest_email, guest_phone, guest_company) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+    [uuidv4(), profile_pic, first_name, last_name, email, phone, company]
   );
 
   if (guest.rowCount !== 0) {
     const result = guest.rows[0];
     res.status(201).json({
-      guest_id: result.guest_id,
-      profile_pic: result.profile_pic,
-      name: `${result.first_name} ${result.last_name}`,
-      email: result.email,
-      phone: result.phone,
-      user_type: result.user_type,
-      token: generateToken(result.guest_id),
+      guest_id: result.guest_uuid,
+      profile_pic: result.guest_profile_pic,
+      name: `${result.guest_first_name} ${result.guest_last_name}`,
+      email: result.guest_email,
+      phone: result.guest_phone,
+      user_type: result.guest_user_type,
+      token: generateToken(result.guest_uuid),
     });
   } else {
     res.status(400);
@@ -76,7 +77,7 @@ const getGuest = asyncHandler(async (req, res) => {
 
   // Check if guest already exists
   const guestExists = await pool.query(
-    "SELECT * FROM guests WHERE guest_id = $1",
+    "SELECT * FROM guests WHERE guest_uuid = $1",
     [id]
   );
 
@@ -86,7 +87,7 @@ const getGuest = asyncHandler(async (req, res) => {
   }
 
   const guest = await pool.query(
-    "SELECT guest_id, first_name, last_name, email, phone, user_type, token FROM guests WHERE guest_id = $1",
+    "SELECT guest_id, guest_first_name, guest_last_name, guest_email, guest_phone, token FROM guests WHERE guest_uuid = $1",
     [id]
   );
 
@@ -108,7 +109,7 @@ const updateGuest = asyncHandler(async (req, res) => {
 
   // Check if guest already exists
   const guestExists = await pool.query(
-    "SELECT * FROM guests WHERE guest_id = $1",
+    "SELECT * FROM guests WHERE guest_uuid = $1",
     [id]
   );
 
@@ -118,7 +119,7 @@ const updateGuest = asyncHandler(async (req, res) => {
   }
 
   const guest = await pool.query(
-    "UPDATE guests SET profile_pic = $1 WHERE guest_id = $2",
+    "UPDATE guests SET profile_pic = $1 WHERE guest_uuid = $2",
     [profile_pic, id]
   );
   res.status(200).json(guest.rows[0]);
@@ -137,7 +138,7 @@ const deleteGuest = asyncHandler(async (req, res) => {
 
   // Check if guest already exists
   const guestExists = await pool.query(
-    "SELECT * FROM guests WHERE guest_id = $1",
+    "SELECT * FROM guests WHERE guest_uuid = $1",
     [id]
   );
 
@@ -146,7 +147,7 @@ const deleteGuest = asyncHandler(async (req, res) => {
     throw new Error(`Guest with id: ${id} does not exist`);
   }
 
-  const guest = await pool.query("DELETE FROM guests WHERE guest_id = $1", [
+  const guest = await pool.query("DELETE FROM guests WHERE guest_uuid = $1", [
     id,
   ]);
   res.status(200).json(guest.rows[0]);

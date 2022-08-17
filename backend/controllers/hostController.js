@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
+const { v4: uuidv4 } = require("uuid");
 const pool = require("../startup/db");
 
 // @desc: Register New Host
@@ -16,7 +16,7 @@ const registerHost = asyncHandler(async (req, res) => {
   }
 
   // Check if host already exists
-  const hostExists = await pool.query("SELECT * FROM hosts WHERE email = $1", [
+  const hostExists = await pool.query("SELECT * FROM hosts WHERE host_email = $1", [
     email,
   ]);
 
@@ -27,20 +27,19 @@ const registerHost = asyncHandler(async (req, res) => {
 
   // Create Host
   const host = await pool.query(
-    "INSERT INTO hosts (profile_pic, first_name, last_name, email, phone, company, user_type) VALUES($1, $2, $3, $4, $5, $6, 'host') RETURNING *",
-    [profile_pic, first_name, last_name, email, phone, company]
+    "INSERT INTO hosts (host_uuid, host_profile_pic, host_first_name, host_last_name, host_email, host_phone, host_company) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+    [uuidv4(), profile_pic, first_name, last_name, email, phone, company]
   );
 
   if (host.rowCount !== 0) {
     const result = host.rows[0];
     res.status(201).json({
-      host_id: result.host_id,
-      profile_pic: result.profile_pic,
-      name: `${result.first_name} ${result.last_name}`,
-      email: result.email,
-      phone: result.phone,
-      user_type: result.user_type,
-      token: generateToken(result.host_id),
+      host_id: result.host_uuid,
+      profile_pic: result.host_profile_pic,
+      name: `${result.host_first_name} ${result.host_last_name}`,
+      email: result.host_email,
+      phone: result.host_phone,
+      token: generateToken(result.host_uuid),
     });
   } else {
     res.status(400);
@@ -76,7 +75,7 @@ const getHost = asyncHandler(async (req, res) => {
 
   // Check if host already exists
   const hostExists = await pool.query(
-    "SELECT * FROM hosts WHERE host_id = $1",
+    "SELECT * FROM hosts WHERE host_uuid = $1",
     [id]
   );
 
@@ -86,7 +85,7 @@ const getHost = asyncHandler(async (req, res) => {
   }
 
   const host = await pool.query(
-    "SELECT host_id, first_name, last_name, email, phone, user_type, token FROM hosts WHERE host_id = $1",
+    "SELECT host_uuid, host_first_name, host_last_name, host_email, host_phone, host_user_type, token FROM hosts WHERE host_id = $1",
     [id]
   );
 
@@ -108,7 +107,7 @@ const updateHost = asyncHandler(async (req, res) => {
 
   // Check if host already exists
   const hostExists = await pool.query(
-    "SELECT * FROM hosts WHERE host_id = $1",
+    "SELECT * FROM hosts WHERE host_uuid = $1",
     [id]
   );
 
@@ -118,7 +117,7 @@ const updateHost = asyncHandler(async (req, res) => {
   }
 
   const host = await pool.query(
-    "UPDATE hosts SET profile_pic = $1 WHERE host_id = $2",
+    "UPDATE hosts SET host_profile_pic = $1 WHERE host_uuid = $2",
     [profile_pic, id]
   );
   res.status(200).json(host.rows[0]);
@@ -137,7 +136,7 @@ const deleteHost = asyncHandler(async (req, res) => {
 
   // Check if host already exists
   const hostExists = await pool.query(
-    "SELECT * FROM hosts WHERE host_id = $1",
+    "SELECT * FROM hosts WHERE host_uuid = $1",
     [id]
   );
 
@@ -146,7 +145,7 @@ const deleteHost = asyncHandler(async (req, res) => {
     throw new Error(`Host with id: ${id} does not exist`);
   }
 
-  const host = await pool.query("DELETE FROM hosts WHERE host_id = $1", [id]);
+  const host = await pool.query("DELETE FROM hosts WHERE host_uuid = $1", [id]);
   res.status(200).json(host.rows[0]);
 });
 

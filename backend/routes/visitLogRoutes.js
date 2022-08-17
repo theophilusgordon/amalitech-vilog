@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const {
-  createVisitLog,
+  checkInGuest,
+  checkOutGuest,
   getVisitLogs,
   getVisitLog,
 } = require("../controllers/visitLogController");
@@ -9,14 +10,26 @@ const {
 /**
  *@swagger
  * paths:
- *  /api/visit-logs:
+ *  /api/visit-logs/check-in/:id:
  *    post:
- *      description: Use to add a visit log information
+ *      description: Use to check in a guest
  *      responses:
  *        '200':
- *          description: Visit log successfully created
+ *          description: Guest successfully checked in
  */
-router.post("/", createVisitLog);
+router.post("/check-in/:id", checkInGuest);
+
+/**
+ *@swagger
+ * paths:
+ *  /api/visit-logs/check-out/:id:
+ *    post:
+ *      description: Use to check out a guest
+ *      responses:
+ *        '200':
+ *          description: Guest successfully checked out
+ */
+router.post("/check-out/:id", checkOutGuest);
 
 /**
  *@swagger

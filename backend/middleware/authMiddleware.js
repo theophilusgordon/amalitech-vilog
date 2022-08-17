@@ -17,7 +17,10 @@ const adminProtect = asyncHandler(async (req, res, next) => {
       const verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
 
       // Get user verified token
-      req.user = await pool.query("SELECT * FROM admins WHERE admin_id = $1", [verifiedToken.id]);
+      req.user = await pool.query(
+        "SELECT * FROM admins WHERE admin_uuid = $1",
+        [verifiedToken.id]
+      );
 
       next();
     } catch (error) {

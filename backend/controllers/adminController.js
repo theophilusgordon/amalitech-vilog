@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
+const { v4: uuidv4 } = require("uuid");
 const pool = require("../startup/db");
 
 // @desc: Register New Admin
@@ -25,7 +26,7 @@ const registerAdmin = asyncHandler(async (req, res) => {
 
   // Check if admin already exists
   const adminExists = await pool.query(
-    "SELECT * FROM admins WHERE email = $1",
+    "SELECT * FROM admins WHERE admin_email = $1",
     [email]
   );
 
@@ -40,20 +41,28 @@ const registerAdmin = asyncHandler(async (req, res) => {
 
   // Create Admin
   const admin = await pool.query(
-    "INSERT INTO admins (profile_pic, first_name, last_name, email, phone, company, user_type, password) VALUES($1, $2, $3, $4, $5, $6, 'admin', $7) RETURNING *",
-    [profile_pic, first_name, last_name, email, phone, company, hashedPassword]
+    "INSERT INTO admins (admin_uuid, admin_profile_pic, admin_first_name, admin_last_name, admin_email, admin_phone, admin_company, admin_password) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING admin_uuid, admin_profile_pic, admin_first_name, admin_last_name, admin_email, admin_phone, admin_company",
+    [
+      uuidv4(),
+      profile_pic,
+      first_name,
+      last_name,
+      email,
+      phone,
+      company,
+      hashedPassword,
+    ]
   );
 
   if (admin.rowCount !== 0) {
     const result = admin.rows[0];
     res.status(201).json({
       admin_id: result.admin_id,
-      profile_pic: result.profile_pic,
-      name: `${result.first_name} ${result.last_name}`,
-      email: result.email,
-      phone: result.phone,
-      user_type: result.user_type,
-      token: generateToken(result.admin_id),
+      profile_pic: result.admin_profile_pic,
+      name: `${result.admin_first_name} ${result.admin_last_name}`,
+      email: result.admin_email,
+      phone: result.admin_phone,
+      token: generateToken(result.admin_uuid),
     });
   } else {
     res.status(400);
@@ -72,23 +81,23 @@ const loginAdmin = asyncHandler(async (req, res) => {
     throw new Error("Please provide email and password");
   }
 
-  const admin = await pool.query("SELECT * FROM admins WHERE email = $1", [
-    email,
-  ]);
+  const admin = await pool.query(
+    "SELECT * FROM admins WHERE admin_email = $1",
+    [email]
+  );
 
   if (
     admin.rowCount !== 0 &&
-    (await bcrypt.compare(password, admin.rows[0].password))
+    (await bcrypt.compare(password, admin.rows[0].admin_password))
   ) {
     const result = admin.rows[0];
     res.status(200).json({
       admin_id: result.admin_id,
-      profile_pic: result.profile_pic,
-      name: `${result.first_name} ${result.last_name}`,
-      email: result.email,
-      phone: result.phone,
-      user_type: result.user_type,
-      token: generateToken(result.admin_id),
+      profile_pic: result.admin_profile_pic,
+      name: `${result.admin_first_name} ${result.admin_last_name}`,
+      email: result.admin_email,
+      phone: result.admin_phone,
+      token: generateToken(result.admin_uuid),
     });
   } else {
     res.status(400);
@@ -103,7 +112,6 @@ const generateToken = (id) => {
   });
 };
 
-// TODO: Correct implementation from here
 // @desc: Get Confirmation Code
 // @route: GET /api/admins/confirmation-code
 // @access: Public
@@ -116,7 +124,7 @@ const getConfirmationCode = asyncHandler(async (req, res) => {
   }
 
   const adminExists = await pool.query(
-    "SELECT * FROM admins WHERE email = $1",
+    "SELECT * FROM admins WHERE admin_email = $1",
     [email]
   );
 
@@ -125,7 +133,7 @@ const getConfirmationCode = asyncHandler(async (req, res) => {
     throw new Error("Invalid admin email");
   }
 
-  // Generate OTP
+  // Generate Confirmation Code
   function generateConfirmationCode() {
     let result = "";
     const characters = "0123456789";
@@ -139,23 +147,22 @@ const getConfirmationCode = asyncHandler(async (req, res) => {
 
   const confirmationCode = generateConfirmationCode();
 
-  // FIXME: Use postgresql syntax
-  const postConfirmationCode = await OTP.create({
-    otpKey: userOTP,
-    author: {
-      email,
-    },
-  });
+  const confirmationCodeUUID = uuidv4();
 
-  // FIXME: Use postgresql syntax
-  if (postConfirmationCode) {
-    res.status(201).json({
-      _id: otp.id,
-      author: email,
-    });
+  const postConfirmationCode = await pool.query(
+    "INSERT INTO confirmation_code (confirmation_code_uuid, code) VALUES ($1, $2)",
+    [confirmationCodeUUID, confirmationCode]
+  );
+  
+  await pool.query(
+    "UPDATE admins SET admin_confirmation_code_id = $1", [confirmationCodeUUID]
+  );
+
+  if (postConfirmationCode.rowCount !== 0) {
+    res.status(201).json(postConfirmationCode.rows[0]);
   } else {
     res.status(500);
-    throw new Error("OTP could not be generated. Please try again");
+    throw new Error("Confirmation code could not be generated. Please try again");
   }
 
   const transporter = nodemailer.createTransport({
@@ -205,14 +212,11 @@ const updateAdminPassword = asyncHandler(async (req, res) => {
     );
   }
 
-  // FIXME: Use postgresql syntax
-  const adminConfirmationCode = await OTP.find({ "author.email": email });
-  const confirmationCode =
-    adminConfirmationCode[adminConfirmationCode.length - 1].otpKey;
+  const adminConfirmationCode = await pool.query("SELECT code FROM confirmation_code WHERE admin_confirmation_code_id === confirmation_code.confirmation_code_uuid");
 
-  if (otp !== confirmationCode) {
+  if (confirmation_code !== adminConfirmationCode) {
     res.status(400);
-    throw new Error("Invalid OTP");
+    throw new Error("Invalid Confirmation Code");
   }
 
   if (!password) {
@@ -225,18 +229,13 @@ const updateAdminPassword = asyncHandler(async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, salt);
 
   // Change Password
-  const user = await User.findOneAndUpdate(
-    { email: req.body.email },
-    {
-      password: hashedPassword,
-    },
-    { new: true }
-  );
+  const updatePassword = await pool.query("UPDATE admins SET admin_password = $1 WHERE admin_email = $2", [hashedPassword, email]);
 
-  if (user) {
+  if (updatePassword.rowCount !== 0) {
+    const result = updatePassword.rows[0];
     res.status(201).json({
-      _id: user.id,
-      token: generateToken(user._id),
+      id: result.admin_uuid,
+      token: generateToken(result.admin_uuid),
     });
   } else {
     res.status(400);
