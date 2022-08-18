@@ -1,8 +1,7 @@
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
-const bcrypt = require("bcryptjs");
-const nodemailer = require("nodemailer");
 const { v4: uuidv4 } = require("uuid");
+const email = require("emailjs");
 const pool = require("../startup/db");
 
 // @desc: Register New Admin
