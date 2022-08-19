@@ -1,8 +1,9 @@
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
 const { v4: uuidv4 } = require("uuid");
-const email = require("emailjs");
 const pool = require("../startup/db");
+const nodemailer = require('nodemailer');
+const bcrypt = require("bcryptjs");
 
 // @desc: Register New Admin
 // @route: POST /api/admins
@@ -112,7 +113,7 @@ const generateToken = (id) => {
 };
 
 // @desc: Get Confirmation Code
-// @route: GET /api/admins/confirmation-code
+// @route: POST /api/admins/confirmation-code
 // @access: Public
 const getConfirmationCode = asyncHandler(async (req, res) => {
   const { email } = req.body;
@@ -165,7 +166,7 @@ const getConfirmationCode = asyncHandler(async (req, res) => {
   }
 
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    service: "outlook",
     auth: {
       user: process.env.VILOG_EMAIL,
       pass: process.env.VILOG_PASS,
@@ -173,7 +174,7 @@ const getConfirmationCode = asyncHandler(async (req, res) => {
   });
 
   const mailOptions = {
-    from: "amalitech.vilog@gmail.com",
+    from: process.env.VILOG_EMAIL,
     to: email,
     subject: "AmaliTech ViLog Admin Password Change",
     text: `Use the confirmation code provided in this email to reset your password on AmaliTech ViLog.
@@ -184,6 +185,7 @@ const getConfirmationCode = asyncHandler(async (req, res) => {
   transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
       res.status(400);
+      console.log(error);
       throw new Error(
         "Confirmation code could not be sent to email. Please try again"
       );
@@ -211,9 +213,12 @@ const updateAdminPassword = asyncHandler(async (req, res) => {
     );
   }
 
-  const adminConfirmationCode = await pool.query("SELECT code FROM confirmation_code WHERE admin_confirmation_code_id === confirmation_code.confirmation_code_uuid");
+  const adminConfirmationCode = await pool.query("SELECT code FROM confirmation_code LEFT JOIN admins ON confirmation_code_uuid = admins.admin_confirmation_code_id");
 
-  if (confirmation_code !== adminConfirmationCode) {
+  if (
+    confirmation_code !==
+    adminConfirmationCode.rows[adminConfirmationCode.rowCount - 1].code
+  ) {
     res.status(400);
     throw new Error("Invalid Confirmation Code");
   }
@@ -230,8 +235,10 @@ const updateAdminPassword = asyncHandler(async (req, res) => {
   // Change Password
   const updatePassword = await pool.query("UPDATE admins SET admin_password = $1 WHERE admin_email = $2", [hashedPassword, email]);
 
-  if (updatePassword.rowCount !== 0) {
-    const result = updatePassword.rows[0];
+  const updatedAdmin = await pool.query("SELECT * FROM admins WHERE admin_email = $1", [email])
+
+  if (updatedAdmin.rowCount !== 0) {
+    const result = updatedAdmin.rows[0];
     res.status(201).json({
       id: result.admin_uuid,
       token: generateToken(result.admin_uuid),

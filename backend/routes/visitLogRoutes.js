@@ -5,7 +5,6 @@ const {
   checkOutGuest,
   getVisitLogs,
   getVisitLog,
-  exportToCSV
 } = require("../controllers/visitLogController");
 
 /**
@@ -55,18 +54,5 @@ router.get("/", getVisitLogs);
  *          description: Visit log successfully fetched
  */
 router.get("/:id", getVisitLog);
-
-/**
- *@swagger
- * paths:
- *  /api/visit-logs/export:
- *    get:
- *      description: Use to generate CSV report of visit logs
- *      responses:
- *        '200':
- *          description: Write visit logs to csv successfully completed
- */
-router.get("/export", exportToCSV);
-
 
 module.exports = router;

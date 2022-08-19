@@ -1,20 +1,9 @@
 const asyncHandler = require("express-async-handler");
-const email = require("emailjs");
+const nodemailer = require("nodemailer");
 const sms = require("sms-service");
 const smsService = new sms.SMSService();
 const { v4: uuidv4 } = require("uuid");
 const pool = require("../startup/db");
-const fastcsv = require("fast-csv");
-const fs = require("fs");
-const ws = fs.createWriteStream("visit-logs.csv");
-
-// Instantiate Emailjs
-const server = email.server.connect({
-  user: process.env.VILOG_EMAIL,
-  password: process.env.VILOG_PASS,
-  host: "smtp.gmail.com",
-  ssl: true,
-});
 
 // @desc: Sign In A Visitor
 // @route: POST /api/visit-logs/check-in/:id
@@ -48,28 +37,41 @@ const checkInGuest = asyncHandler(async (req, res) => {
   );
 
   const result = log_info.rows;
-  res.status(201).json(result);
-  console.log(result);
 
   const message = `Hello ${result[0].host_first_name} ${result[0].host_last_name}, ${result[0].guest_first_name} ${result[0].guest_last_name} has just checked in at ${result[0].sign_in} to see you. 
-
+  
   Contact Details.
   Email: ${result[0].guest_email}
   Phone: ${result[0].guest_phone}`;
 
-  server.send(
-    {
-      text: message,
-      from: "AmaliTech ViLog",
-      to: `${result.host_first_name} <${result.host_email}>`,
-      subject: "You have a guest",
+  const transporter = nodemailer.createTransport({
+    service: "outlook",
+    auth: {
+      user: process.env.VILOG_EMAIL,
+      pass: process.env.VILOG_PASS,
     },
-    (err, message) => {
-      console.log(err || message);
-    }
-  );
+  });
 
-  smsService.sendSMS(result.host_phone, message);
+  const mailOptions = {
+    from: process.env.VILOG_EMAIL,
+    to: result[0].host_email,
+    subject: "You have a guest",
+    text: message,
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      res.status(500);
+      console.log(error);
+      throw new Error("Internal Server Error. Email not sent to host");
+    } else {
+      res.status(200).send(`Email sent: ${info.response}`);
+    }
+  });
+
+  res.status(201).json(result[0]);
+
+  // smsService.sendSMS(result.host_phone, message);
 });
 
 // @desc: Sign Out A Visitor
@@ -104,27 +106,40 @@ const checkOutGuest = asyncHandler(async (req, res) => {
   );
 
   const result = log_info.rows[0];
-  res.status(201).json(result);
 
   const message = `Hello ${result.host_first_name} ${result.host_last_name}, ${result.guest_first_name} ${result.guest_last_name} has just checked out at ${result.sign_out} after seeing you. 
-
+  
   Contact Details.
   Email: ${result.guest_email}
   Phone: ${result.guest_phone}`;
 
-  server.send(
-    {
-      text: message,
-      from: "AmaliTech ViLog",
-      to: `${result.host_first_name} <${result.host_email}>`,
-      subject: "Your guest is leaving",
+  const transporter = nodemailer.createTransport({
+    service: "outlook",
+    auth: {
+      user: process.env.VILOG_EMAIL,
+      pass: process.env.VILOG_PASS,
     },
-    (err, message) => {
-      console.log(err || message);
-    }
-  );
+  });
 
-  smsService.sendSMS(result.host_phone, message);
+  const mailOptions = {
+    from: process.env.VILOG_EMAIL,
+    to: result.host_email,
+    subject: "Your guest is leaving",
+    text: message,
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      res.status(500);
+      console.log(error);
+      throw new Error("Internal Server Error. Email not sent to host");
+    } else {
+      res.status(200).send(`Email sent: ${info.response}`);
+    }
+  });
+
+  // smsService.sendSMS(result.host_phone, message);
+  res.status(201).json(result);
 });
 
 const getVisitLogs = asyncHandler(async (req, res) => {
@@ -147,33 +162,9 @@ const getVisitLog = asyncHandler(async (req, res) => {
   res.status(201).json(result);
 });
 
-// @desc: Export visit logs to csv
-// @route: GET /api/visit-logs/export
-// @access: Public
-const exportToCSV = asyncHandler(async (req, res) => {
-  const exportCSV = await pool.query(
-    "SELECT * FROM guests LEFT JOIN hosts ON hosts.host_uuid = guests.guest_host_id LEFT JOIN visit_logs ON visit_logs.guest_id = guests.guest_uuid",
-    (error, data) => {
-      if (error) throw new Error(error);
-
-      const jsonData = JSON.parse(JSON.stringify(data.rows));
-      console.log(jsonData);
-
-      fastcsv
-        .write(jsonData, { headers: true })
-        .on("finish", () => console.log("Write to visit-data.csv complete"))
-        .pipe(ws);
-    }
-  );
-
-  const result = exportCSV.rows;
-  res.status(201).json(result);
-});
-
 module.exports = {
   checkInGuest,
   getVisitLogs,
   getVisitLog,
   checkOutGuest,
-  exportToCSV,
 };
