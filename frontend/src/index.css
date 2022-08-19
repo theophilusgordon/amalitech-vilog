@@ -1,5 +1,17 @@
-body {
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+* {
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
+  box-sizing: border-box;
+}
+
+body {
+  background-image: url('./images/background.jpg') rgba(255,255,255,.3);
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
 }

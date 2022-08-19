@@ -98,6 +98,17 @@ const getHost = asyncHandler(async (req, res) => {
 const updateHost = asyncHandler(async (req, res) => {
   const { profile_pic, first_name, last_name, email, phone, company } =
     req.body;
+
+    let field;
+
+    if(profile_pic) field = profile_pic;
+    if(first_name) field = first_name;
+    if(last_name) field = last_name;
+    if(email) field = email;
+    if(phone) field = phone;
+    if(company) field = company;
+  
+
   const id = req.params.id;
 
   if (!id) {
@@ -118,7 +129,7 @@ const updateHost = asyncHandler(async (req, res) => {
 
   const host = await pool.query(
     "UPDATE hosts SET host_profile_pic = $1 WHERE host_uuid = $2",
-    [profile_pic, id]
+    [field, id]
   );
   res.status(200).json(host.rows[0]);
 });
