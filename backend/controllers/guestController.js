@@ -95,11 +95,10 @@ const getGuest = asyncHandler(async (req, res) => {
 });
 
 // @desc: Update guest information
-// @route: GET /api/guests/:id
+// @route: PUT /api/guests/:id
 // @access: Private
 const updateGuest = asyncHandler(async (req, res) => {
-  const { profile_pic, first_name, last_name, email, phone, company } =
-    req.body;
+  const { profile_pic } = req.body;
   const id = req.params.id;
 
   if (!id) {
@@ -125,38 +124,9 @@ const updateGuest = asyncHandler(async (req, res) => {
   res.status(200).json(guest.rows[0]);
 });
 
-// @desc: Delete A Guest
-// @route: GET /api/guests/:id
-// @access: Private
-const deleteGuest = asyncHandler(async (req, res) => {
-  const id = req.params.id;
-
-  if (!id) {
-    res.status(400);
-    throw new Error("Please provide an id");
-  }
-
-  // Check if guest already exists
-  const guestExists = await pool.query(
-    "SELECT * FROM guests WHERE guest_uuid = $1",
-    [id]
-  );
-
-  if (guestExists.rowCount === 0) {
-    res.status(400);
-    throw new Error(`Guest with id: ${id} does not exist`);
-  }
-
-  const guest = await pool.query("DELETE FROM guests WHERE guest_uuid = $1", [
-    id,
-  ]);
-  res.status(200).json(guest.rows[0]);
-});
-
 module.exports = {
   registerGuest,
   getGuests,
   getGuest,
   updateGuest,
-  deleteGuest,
 };

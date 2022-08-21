@@ -59,7 +59,7 @@ const generateToken = (id) => {
 // @access: Private
 const getHosts = asyncHandler(async (req, res) => {
   const hosts = await pool.query("SELECT * FROM hosts");
-  res.status(200).json(hosts.rows[0]);
+  res.status(200).json(hosts.rows);
 });
 
 // @desc: Get A Host

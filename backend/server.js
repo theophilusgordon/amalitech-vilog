@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/api/admins", require("./routes/adminRoutes"));
-app.use("/api/hosts", [adminProtect], require("./routes/hostRoutes"));
+app.use("/api/hosts", require("./routes/hostRoutes"));
 app.use("/api/guests", require("./routes/guestRoutes"));
 app.use("/api/visit-logs", require("./routes/visitLogRoutes"));
 app.use("/api/export-csv", require("./routes/exportCSVRoutes"));

@@ -5,7 +5,6 @@ const {
   getGuests,
   getGuest,
   updateGuest,
-  deleteGuest,
 } = require("../controllers/guestController");
 
 /**
@@ -55,17 +54,5 @@ router.get("/:id", getGuest);
  *          description: Host information successfully changed
  */
 router.put("/:id", updateGuest);
-
-/**
- *@swagger
- * paths:
- *  /api/guests/:id:
- *    delete:
- *      description: Use to delete a guest
- *      responses:
- *        '200':
- *          description: Guest successfully deleted
- */
-router.delete("/:id", deleteGuest);
 
 module.exports = router;
