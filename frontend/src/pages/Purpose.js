@@ -8,6 +8,7 @@ const Purpose = () => {
   const handleChange = (e) => {
     setUserType(e.target.value)
     if (e.target.value === "guest") navigate("/guest");
+    if (e.target.value === "admin") navigate("/admin-login");
   }
   return (
     <div>
