@@ -142,9 +142,13 @@ const checkOutGuest = asyncHandler(async (req, res) => {
   res.status(201).json(result);
 });
 
+
+// @desc: Get all visit logs
+// @route: GET /api/visit-logs
+// @access: Public
 const getVisitLogs = asyncHandler(async (req, res) => {
   const log_info = await pool.query(
-    "SELECT * FROM guests LEFT JOIN hosts ON hosts.host_uuid = guests.guest_host_id LEFT JOIN visit_logs ON visit_logs.guest_id = guests.guest_uuid"
+    "SELECT * FROM guests LEFT JOIN hosts ON hosts.host_uuid = guests.guest_host_id LEFT JOIN visit_logs ON visit_logs.guest_id = guests.guest_uuid ORDER BY sign_in DESC"
   );
 
   const result = log_info.rows;

@@ -44,7 +44,7 @@ const SelectHost = () => {
     const id = localStorage.getItem("id");
     try {
       const response = await axios.post(
-        `http:localhost:5000/api/visit-logs/check-in/${id}`,
+        `http://localhost:5000/api/visit-logs/check-in/${id}`,
         { host_uuid }
       );
       if (response) {

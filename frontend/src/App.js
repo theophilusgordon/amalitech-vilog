@@ -10,6 +10,7 @@ import SelectHost from "./pages/SelectHost";
 import Success from "./pages/Success";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import QRCodeScan from "./pages/QRCodeScan";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/success" element={<Success />} />
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/dashboard" element={<AdminDashboard />} />
+          <Route path="/qr-code-scan" element={<QRCodeScan />} />
         </Routes>
       </Router>
       <ToastContainer />

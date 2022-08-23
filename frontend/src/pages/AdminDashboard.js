@@ -1,10 +1,9 @@
 import {useState} from 'react'
 import { useNavigate } from 'react-router-dom'
-import {FaHome, FaUserTag, FaUsers, FaUserTie, FaSignOutAlt} from 'react-icons/fa'
+import {FaHome, FaUserTag, FaUserTie, FaSignOutAlt} from 'react-icons/fa'
 import logo from '../images/Dashboard Logo.png'
 import DashboardHome from '../components/DashboardHome';
 import DashboardGuestTracking from '../components/DashboardGuestTracking'
-import DashboardStatistics from '../components/DashboardStatistics'
 import DashboardHosts from '../components/DashboardHosts'
 
 const AdminDashboard = () => {
@@ -15,7 +14,6 @@ const AdminDashboard = () => {
 
   if(tab === 'home') element = <DashboardHome />;
   if(tab === 'guest-tracking') element = <DashboardGuestTracking />;
-  if(tab === 'statistics') element = <DashboardStatistics />;
   if(tab === 'hosts') element = <DashboardHosts />;
 
 
@@ -23,8 +21,8 @@ const AdminDashboard = () => {
     navigate("/");
   }
 
-  const handleActive = (e) => {
-    setTab(e.target.tab)
+  const handleActive = (tab) => {
+    setTab(tab)
   }
 
   return (
@@ -38,39 +36,28 @@ const AdminDashboard = () => {
             <div className="nav-items">
               <p
                 className="w-full h-14 font-bold text-2xl text-white flex items-center gap-2 hover:cursor-pointer"
-                onClick={(e) => handleActive(e)}
-                tab="home"
+                onClick={(e) => handleActive("home")}
               >
                 <FaHome />
                 Dashboard
               </p>
               <p
                 className="w-full h-14 font-bold text-2xl text-white flex items-center gap-2 hover:cursor-pointer"
-                onClick={(e) => handleActive(e)}
-                tab="guest-tracking"
+                onClick={(e) => handleActive("guest-tracking")}
               >
                 <FaUserTag />
                 Guest Tracking
               </p>
               <p
                 className="w-full h-14 font-bold text-2xl text-white flex items-center gap-2 hover:cursor-pointer"
-                onClick={(e) => handleActive(e)}
-                tab="statistics"
-              >
-                <FaUsers />
-                Statistics
-              </p>
-              <p
-                className="w-full h-14 font-bold text-2xl text-white flex items-center gap-2 hover:cursor-pointer"
-                onClick={(e) => handleActive(e)}
-                tab="hosts"
+                onClick={(e) => handleActive("hosts")}
               >
                 <FaUserTie />
                 Hosts
               </p>
             </div>
             <div
-              className="logout justify-self-end w-full h-14 font-bold text-2xl text-white flex items-center gap-2 hover:cursor-pointer hover:text-orange-200"
+              className="logout absolute bottom-10 w-full h-14 font-bold text-2xl text-white flex items-center gap-2 hover:cursor-pointer hover:text-orange-200"
               onClick={handleLogout}
             >
               <FaSignOutAlt />
@@ -78,9 +65,7 @@ const AdminDashboard = () => {
             </div>
           </div>
         </nav>
-        <main className='ml-auto w-4/5'>
-          {element}
-        </main>
+        <main className="ml-auto w-4/5">{element}</main>
       </div>
     </div>
   );

@@ -43,7 +43,7 @@ const GuestForm = () => {
           guestData
         );
         if (response) {
-          localStorage.setItem("id", response.data.guest_uuid);
+          localStorage.setItem("id", response.data.guest_id);
 
           navigate("/picture");
         }

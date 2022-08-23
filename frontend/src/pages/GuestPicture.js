@@ -67,7 +67,6 @@ const GuestPicture = () => {
         const response = await axios.put(`http://localhost:5000/api/guests/${id}`, {profile_photo})
 
           if (response) {
-
             navigate("/selecthost");
           }
       } catch (error) {

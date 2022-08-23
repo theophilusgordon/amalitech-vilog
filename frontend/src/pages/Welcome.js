@@ -15,7 +15,9 @@ const Welcome = () => {
         Welcome
       </h1>
       <div className="flex w-4/5 mx-auto justify-between items-center">
-        <img src={qrCode} alt="QR Code Scanner" />
+        <Link to="/qr-code-scan">
+          <img src={qrCode} alt="QR Code Scanner" />
+        </Link>
         <h2 className="text-primary font-bold text-4xl">
           <Link to="/purpose">SIGN IN</Link>
         </h2>
