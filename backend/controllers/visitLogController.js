@@ -1,9 +1,9 @@
 const asyncHandler = require("express-async-handler");
 const nodemailer = require("nodemailer");
+const pool = require("../startup/db");
+const { v4: uuidv4 } = require("uuid");
 const sms = require("sms-service");
 const smsService = new sms.SMSService();
-const { v4: uuidv4 } = require("uuid");
-const pool = require("../startup/db");
 
 // @desc: Sign In A Visitor
 // @route: POST /api/visit-logs/check-in/:id
@@ -78,11 +78,11 @@ const checkInGuest = asyncHandler(async (req, res) => {
 // @route: POST /api/visit-logs/check-out/:id
 // @access: Public
 const checkOutGuest = asyncHandler(async (req, res) => {
-  const id = req.params.id;
+  const {email} = req.body;
 
   const guestExists = await pool.query(
-    "SELECT * FROM guests WHERE guest_uuid = $1",
-    [id]
+    "SELECT * FROM guests WHERE guest_email = $1",
+    [email]
   );
 
   // Check if visitor exists

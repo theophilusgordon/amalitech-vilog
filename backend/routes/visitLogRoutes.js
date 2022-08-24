@@ -29,7 +29,7 @@ router.post("/check-in/:id", checkInGuest);
  *        '200':
  *          description: Guest successfully checked out
  */
-router.post("/check-out/:id", checkOutGuest);
+router.post("/check-out", checkOutGuest);
 
 /**
  *@swagger

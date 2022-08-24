@@ -50,7 +50,7 @@ const AdminDashboard = () => {
               </p>
               <p
                 className="w-full h-14 font-bold text-2xl text-white flex items-center gap-2 hover:cursor-pointer"
-                onClick={(e) => handleActive("hosts")}
+                onClick={() => handleActive("hosts")}
               >
                 <FaUserTie />
                 Hosts

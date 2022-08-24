@@ -23,7 +23,7 @@ const DashboardGuestTracking = () => {
   return (
     <div>
       <div className="header flex justify-between text-gray-500 font-bold text-2xl items-center py-5 px-10">
-        <h1 className="flex items-center">
+        <h1 className="flex items-center gap-3">
           <FaIdCard /> Guests
         </h1>
         <div className="search flex items-center gap-5">
@@ -40,7 +40,7 @@ const DashboardGuestTracking = () => {
           <h2>Sign Out</h2>
         </div>
         <div className="list-body">
-          {data.map((content) => {
+          {data.map((content, index) => {
             const {
               sign_in,
               guest_profile_pic,
@@ -54,7 +54,10 @@ const DashboardGuestTracking = () => {
               sign_out,
             } = content;
             return (
-              <div className="grid grid-cols-4 pb-3 px-10 text-gray-800">
+              <div
+                className="grid grid-cols-4 pb-3 px-10 text-gray-800"
+                key={index}
+              >
                 <div className="flex">
                   <img
                     src={guest_profile_pic}
@@ -85,7 +88,8 @@ const DashboardGuestTracking = () => {
                   {moment(sign_in).format("DD MMM, YYYY h:mma")}
                 </p>
                 <p className="">
-                  {moment(sign_out).format("DD MMM, YYYY h:mma")}
+                  {sign_out !== null &&
+                    moment(sign_out).format("DD MMM, YYYY h:mma")}
                 </p>
               </div>
             );

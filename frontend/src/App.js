@@ -11,6 +11,7 @@ import Success from "./pages/Success";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import QRCodeScan from "./pages/QRCodeScan";
+import CheckOutGuest from  "./pages/CheckOutGuest";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/dashboard" element={<AdminDashboard />} />
           <Route path="/qr-code-scan" element={<QRCodeScan />} />
+          <Route path="/check-out" element={<CheckOutGuest />} />
         </Routes>
       </Router>
       <ToastContainer />

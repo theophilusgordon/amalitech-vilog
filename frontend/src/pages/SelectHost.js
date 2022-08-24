@@ -15,7 +15,6 @@ const SelectHost = () => {
     setSearchText(e.target.value);
 
     searchText.length <= 1 ? setSearching(false) : setSearching(true);
-
   };
 
   useEffect(() => {
@@ -45,7 +44,7 @@ const SelectHost = () => {
     try {
       const response = await axios.post(
         `http://localhost:5000/api/visit-logs/check-in/${id}`,
-        { host_uuid }
+        { host_id: host_uuid }
       );
       if (response) {
         navigate("/success");

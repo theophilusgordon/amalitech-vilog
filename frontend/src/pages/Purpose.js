@@ -9,6 +9,7 @@ const Purpose = () => {
     setUserType(e.target.value)
     if (e.target.value === "guest") navigate("/guest");
     if (e.target.value === "admin") navigate("/admin-login");
+    if (e.target.value === "signing_out") navigate("/check-out");
   }
   return (
     <div>

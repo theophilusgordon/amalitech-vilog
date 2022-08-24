@@ -4,8 +4,8 @@ const { v4: uuidv4 } = require("uuid");
 const pool = require("../startup/db");
 
 // @desc: Register New Host
-// @route: POST /api/hosts
-// @access: Public
+// @route: POST /api/hosts/register
+// @access: Private
 const registerHost = asyncHandler(async (req, res) => {
   const { profile_pic, first_name, last_name, email, phone, company } =
     req.body;

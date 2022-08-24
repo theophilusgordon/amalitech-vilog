@@ -11,6 +11,7 @@ import {
   FaUserTie,
   FaChartLine,
 } from "react-icons/fa";
+import SendEmailModal from "../components/SendEmailModal";
 import { toast } from "react-toastify";
 import { Line, Pie } from "react-chartjs-2";
 import { CategoryScale } from "chart.js";
@@ -21,6 +22,7 @@ Chart.defaults.plugins.legend.position = "left";
 
 const DashboardHome = () => {
   const [data, setData] = useState([]);
+  const [showSendEmailModal, setShowSendEmailModal] = useState(false);
 
   const getLogs = async () => {
     try {
@@ -36,6 +38,21 @@ const DashboardHome = () => {
 
   getLogs();
 
+  const handleExport = async () => {
+    try {
+      const response = await axios.get(`http://localhost:500/api/export-csv`);
+      if (response) {
+        toast.success("Export to CSV successful");
+      }
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+  }
+
+  const handleShare = () => {
+    showSendEmailModal ? setShowSendEmailModal(false) : setShowSendEmailModal(true);
+  }
+
   return (
     <div>
       <div className="header flex justify-between h-20 px-10 font-semibold text-gray-500 text-xl">
@@ -44,7 +61,7 @@ const DashboardHome = () => {
           Signed In Visitors
         </h2>
         <div className="csv flex w-2/5 justify-between">
-          <button className="flex items-center gap-2">
+          <button className="flex items-center gap-2" onClick={handleExport}>
             <FaFileExport />
             EXPORT
           </button>
@@ -52,12 +69,13 @@ const DashboardHome = () => {
             <FaSave />
             SAVE
           </button>
-          <button className="flex items-center gap-2">
+          <button className="flex items-center gap-2" onClick={handleShare}>
             <FaShareAlt />
             SHARE
           </button>
         </div>
       </div>
+      {showSendEmailModal && <SendEmailModal />}
       <div className="visit-log px-10">
         <div className="head grid grid-cols-3 text-gray-500 font-semibold">
           <h3>Signed In</h3>
@@ -113,7 +131,7 @@ const DashboardHome = () => {
                 "24",
                 "26",
                 "28",
-                "30"
+                "30",
               ],
               datasets: [
                 {
@@ -151,7 +169,14 @@ const DashboardHome = () => {
                   label: "Number of guests",
                   data: [80, 35, 102, 50, 30, 50],
                   borderWidth: 2,
-                  backgroundColor: ["#7921B1", "#461257", "#B24BF3", "#51087E", "#BC61F5", "#D7A1F9"],
+                  backgroundColor: [
+                    "#7921B1",
+                    "#461257",
+                    "#B24BF3",
+                    "#51087E",
+                    "#BC61F5",
+                    "#D7A1F9",
+                  ],
                 },
               ],
             }}
