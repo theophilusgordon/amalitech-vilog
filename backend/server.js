@@ -17,6 +17,7 @@ app.use("/api/hosts", require("./routes/hostRoutes"));
 app.use("/api/guests", require("./routes/guestRoutes"));
 app.use("/api/visit-logs", require("./routes/visitLogRoutes"));
 app.use("/api/export-csv", require("./routes/exportCSVRoutes"));
+app.use("/api/qr-code", require("./routes/qrCodeRoutes"));
 
 app.use(errorHandler);
 

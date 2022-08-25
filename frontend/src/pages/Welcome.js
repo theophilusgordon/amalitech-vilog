@@ -21,7 +21,7 @@ const Welcome = () => {
         <h2 className="text-primary font-bold text-4xl">
           <Link to="/purpose">SIGN IN</Link>
         </h2>
-        <img src={vilogLogo} alt="ViLog Logo" />
+        <img src={vilogLogo} alt="ViLog Logo" className="w-48"/>
       </div>
     </div>
   );
