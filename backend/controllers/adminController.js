@@ -155,7 +155,7 @@ const getConfirmationCode = asyncHandler(async (req, res) => {
   );
   
   await pool.query(
-    "UPDATE admins SET admin_confirmation_code_id = $1", [confirmationCodeUUID]
+    "UPDATE admins SET admin_confirmation_code_id = $1 WHERE admin_email = $2", [confirmationCodeUUID, email]
   );
 
   if (postConfirmationCode.rowCount !== 0) {

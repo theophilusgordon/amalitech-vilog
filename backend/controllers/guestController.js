@@ -61,11 +61,28 @@ const generateToken = (id) => {
 // @access: Private
 const getGuests = asyncHandler(async (req, res) => {
   const guests = await pool.query("SELECT * FROM guests");
-  res.status(200).json(guests.rows[0]);
+  res.status(200).json(guests.rows);
+});
+
+// @desc: Get Belonging To A Host
+// @route: GET /api/guests/host/:id
+// @access: Private
+const getHostGuests = asyncHandler(async (req, res) => {
+  const {id} = req.params;
+
+  // Check if host exists
+  const hostExists = await pool.query('SELECT * FROM hosts WHERE host_uuid = $1', [id])
+  if(hostExists.rowCount === 0){
+    res.status(400);
+    throw new Error("Host does not exist")
+  }
+
+  const guests = await pool.query("SELECT * FROM guests WHERE guest_host_id = $1", [id]);
+  res.status(200).json(guests.rows);
 });
 
 // @desc: Get A Guest
-// @route: GET /api/guests/:id
+// @route: GET /api/guests/guest/:id
 // @access: Private
 const getGuest = asyncHandler(async (req, res) => {
   const id = req.params.id;
@@ -75,7 +92,7 @@ const getGuest = asyncHandler(async (req, res) => {
     throw new Error("Please provide an id");
   }
 
-  // Check if guest already exists
+  // Check if guest exists
   const guestExists = await pool.query(
     "SELECT * FROM guests WHERE guest_uuid = $1",
     [id]
@@ -124,9 +141,19 @@ const updateGuest = asyncHandler(async (req, res) => {
   res.status(200).json(guest.rows[0]);
 });
 
+// @desc: Get All Hosts
+// @route: GET /api/guests/hosts
+// @access: Private
+const searchHosts = asyncHandler(async (req, res) => {
+  const hosts = await pool.query("SELECT * FROM hosts");
+  res.status(200).json(hosts.rows);
+});
+
 module.exports = {
   registerGuest,
   getGuests,
   getGuest,
   updateGuest,
+  getHostGuests,
+  searchHosts
 };

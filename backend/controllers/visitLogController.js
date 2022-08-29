@@ -155,20 +155,24 @@ const getVisitLogs = asyncHandler(async (req, res) => {
   res.status(201).json(result);
 });
 
-const getVisitLog = asyncHandler(async (req, res) => {
-  const id = req.params.id;
+// @desc: Get all visit logs
+// @route: GET /api/visit-logs/:id
+// @access: Public
+const getHostVisitLogs = asyncHandler(async (req, res) => {
+  const {id} = req.params;
   const log_info = await pool.query(
-    "SELECT * FROM guests LEFT JOIN hosts ON hosts.host_uuid = guests.guest_host_id LEFT JOIN visit_logs ON visit_logs.guest_id = guests.guest_uuid WHERE guest_uuid = $1",
-    [id]
+    "SELECT * FROM guests LEFT JOIN hosts ON hosts.host_uuid = guests.guest_host_id LEFT JOIN visit_logs ON visit_logs.guest_id = guests.guest_uuid WHERE guest_host_id = $1 ORDER BY sign_in DESC",[id]
   );
 
   const result = log_info.rows;
   res.status(201).json(result);
 });
 
+
+
 module.exports = {
   checkInGuest,
   getVisitLogs,
-  getVisitLog,
   checkOutGuest,
+  getHostVisitLogs,
 };

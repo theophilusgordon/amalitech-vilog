@@ -40,7 +40,7 @@ const DashboardHome = () => {
 
   const handleExport = async () => {
     try {
-      const response = await axios.get(`http://localhost:500/api/export-csv`);
+      const response = await axios.get(`http://localhost:5000/api/export-csv`);
       if (response) {
         toast.success("Export to CSV successful");
       }

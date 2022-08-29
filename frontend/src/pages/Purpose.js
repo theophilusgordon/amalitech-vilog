@@ -10,6 +10,7 @@ const Purpose = () => {
     if (e.target.value === "guest") navigate("/guest");
     if (e.target.value === "admin") navigate("/admin-login");
     if (e.target.value === "signing_out") navigate("/check-out");
+    if (e.target.value === "host") navigate("/host-login");
   }
   return (
     <div>

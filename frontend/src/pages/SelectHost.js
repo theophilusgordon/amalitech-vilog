@@ -20,14 +20,20 @@ const SelectHost = () => {
   useEffect(() => {
     const searchHost = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/hosts`);
+        const response = await axios.get(
+          `http://localhost:5000/api/guests/hosts`
+        );
 
         if (response) {
           setHosts(
-            response.data.filter((host) =>
-              host.host_first_name
-                .toLowerCase()
-                .includes(searchText.toLowerCase())
+            response.data.filter(
+              (host) =>
+                host.host_first_name
+                  .toLowerCase()
+                  .includes(searchText.toLowerCase()) ||
+                host.host_last_name
+                  .toLowerCase()
+                  .includes(searchText.toLowerCase())
             )
           );
         }
@@ -48,6 +54,7 @@ const SelectHost = () => {
       );
       if (response) {
         navigate("/success");
+        localStorage.clear();
       }
     } catch (error) {
       toast.error(error.response.data.message);

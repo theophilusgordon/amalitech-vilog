@@ -6,6 +6,9 @@ const {
   getHost,
   updateHost,
   deleteHost,
+  loginHost,
+  updateHostPassword,
+  getConfirmationCode
 } = require("../controllers/hostController");
 
 /**
@@ -42,7 +45,7 @@ router.get("/", getHosts);
  *        '200':
  *          description: Host successfully fetched
  */
-router.get("/:id", getHost);
+router.get("/host/:id", getHost);
 
 /**
  *@swagger
@@ -54,7 +57,7 @@ router.get("/:id", getHost);
  *        '200':
  *          description: Host information successfully changed
  */
-router.put("/:id", updateHost);
+router.put("/host/:id", updateHost);
 
 /**
  *@swagger
@@ -66,6 +69,42 @@ router.put("/:id", updateHost);
  *        '200':
  *          description: Host successfully deleted
  */
-router.delete("/:id", deleteHost);
+router.delete("/host/:id", deleteHost);
+
+/**
+ *@swagger
+ * paths:
+ *  /api/admins/login:
+ *    post:
+ *      description: Use to authenticate an admin
+ *      responses:
+ *        '200':
+ *          description: Admin successfully authenticated
+ */
+router.post("/login", loginHost);
+
+/**
+ *@swagger
+ * paths:
+ *  /api/hosts/confirmation-code:
+ *    post:
+ *      description: Use to create confirmation code for a host
+ *      responses:
+ *        '200':
+ *          description: Confirmation code successfully created
+ */
+router.post("/confirmation-code", getConfirmationCode);
+
+/**
+ *@swagger
+ * paths:
+ *  /api/hosts/reset:
+ *    post:
+ *      description: Use to change host password
+ *      responses:
+ *        '200':
+ *          description: Host password successfully changed
+ */
+router.put("/reset", updateHostPassword);
 
 module.exports = router;

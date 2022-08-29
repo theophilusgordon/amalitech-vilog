@@ -1,61 +1,71 @@
-import {useState} from 'react'
+import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { FaSignInAlt } from "react-icons/fa";
 
-
-
 const AddHostModal = () => {
-    const [formData, setFormData] = useState({
-      first_name: "",
-      last_name: "",
-      email: "",
-      phone: "",
-      company: "",
-    });
+  const [formData, setFormData] = useState({
+    profile_pic: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    company: "",
+    password: "",
+  });
 
+  const { profile_pic, first_name, last_name, phone, email, company } =
+    formData;
 
-    const { first_name, last_name, phone, email, company } = formData;
+  const handleChange = (e) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
-    const handleChange = (e) => {
-      setFormData((prevState) => ({
-        ...prevState,
-        [e.target.name]: e.target.value,
-      }));
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const hostData = {
+      profile_pic,
+      first_name,
+      last_name,
+      phone,
+      email,
+      company,
+      password: "1234",
     };
 
-    const handleSubmit = (e) => {
-      e.preventDefault();
-
-      const hostData = {
-        // profile_pic,
-        first_name,
-        last_name,
-        phone,
-        email,
-        company,
-      };
-
-      const postData = async () => {
-        try {
-          const response = await axios.post(
-            `http://localhost:5000/api/hosts/register`,
-            hostData
-          );
-          if (response) {
-            toast.success("Host Added")
-            window.location.reload()
-          }
-        } catch (error) {
-          toast.error(error.response.data.message);
-          console.log(error);
+    const postData = async () => {
+      try {
+        const response = await axios.post(
+          `http://localhost:5000/api/hosts/register`,
+          hostData
+        );
+        if (response) {
+          toast.success("Host Added");
+          window.location.reload();
         }
-      };
-
-      postData();
+      } catch (error) {
+        toast.error(error.response.data.message);
+        console.log(error);
+      }
     };
+
+    postData();
+  };
   return (
     <form className="w-4/5 mx-auto pt-20">
+      <div className="form-group flex flex-col">
+        <label
+          htmlFor="profile_pic"
+          className="text-secondary text-sm font-bold"
+        >
+          Upload Host Photo
+        </label>
+        <input type="file" name="profile" id="profile_pic" className="mb-5 text-secondary text-sm file:text-primary file:bg-white file:border-none file:hover:cursor-pointer file:font-semibold" />
+      </div>
       <div className="inputs grid grid-cols-1 md:grid-cols-2 gap-10">
         <div className="form-group flex flex-col">
           <label
@@ -151,6 +161,6 @@ const AddHostModal = () => {
       </button>
     </form>
   );
-}
+};
 
-export default AddHostModal
+export default AddHostModal;

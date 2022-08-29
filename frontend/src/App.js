@@ -11,7 +11,11 @@ import Success from "./pages/Success";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import QRCodeScan from "./pages/QRCodeScan";
-import CheckOutGuest from  "./pages/CheckOutGuest";
+import CheckOutGuest from "./pages/CheckOutGuest";
+import HostLogin from "./pages/HostLogin";
+import ConfirmationCode from "./pages/ConfirmationCode";
+import ChangePassword from "./pages/ChangePassword";
+import HostDashboard from "./pages/HostDashboard";
 
 function App() {
   return (
@@ -28,6 +32,10 @@ function App() {
           <Route path="/dashboard" element={<AdminDashboard />} />
           <Route path="/qr-code-scan" element={<QRCodeScan />} />
           <Route path="/check-out" element={<CheckOutGuest />} />
+          <Route path="/host-login" element={<HostLogin />} />
+          <Route path="/confirmation-code" element={<ConfirmationCode />} />
+          <Route path="/change-password" element={<ChangePassword />} />
+          <Route path='/host-dashboard' element={<HostDashboard />}/>
         </Routes>
       </Router>
       <ToastContainer />

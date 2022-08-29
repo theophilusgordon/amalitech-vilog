@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import moment from "moment";
 import { toast } from "react-toastify";
+import defaultPhoto from "../images/default_photo.svg";
 import { FaIdCard, FaSearch, FaFilter } from "react-icons/fa";
 
 const DashboardGuestTracking = () => {
@@ -59,11 +60,19 @@ const DashboardGuestTracking = () => {
                 key={index}
               >
                 <div className="flex">
-                  <img
-                    src={guest_profile_pic}
-                    alt={`${guest_first_name}'s profile`}
-                    className="w-12 aspect-square mr-3"
-                  />
+                  {guest_profile_pic ? (
+                    <img
+                      src={guest_profile_pic}
+                      alt={`${guest_first_name}'s profile`}
+                      className="w-12 aspect-square mr-3"
+                    />
+                  ) : (
+                    <img
+                      src={defaultPhoto}
+                      alt="Default"
+                      className="w-12 aspect-square rounded-full"
+                    />
+                  )}
                   <div>
                     <p className="font-bold">
                       {guest_first_name} {guest_last_name}
@@ -72,11 +81,19 @@ const DashboardGuestTracking = () => {
                   </div>
                 </div>
                 <div className="flex">
-                  <img
-                    src={host_profile_pic}
-                    alt={`${host_first_name}'s profile`}
-                    className="w-12 aspect-square mr-3"
-                  />
+                  {host_profile_pic ? (
+                    <img
+                      src={host_profile_pic}
+                      alt={`${host_first_name}'s profile`}
+                      className="w-12 aspect-square mr-3"
+                    />
+                  ) : (
+                    <img
+                      src={defaultPhoto}
+                      alt="Default"
+                      className="w-12 aspect-square rounded-full"
+                    />
+                  )}
                   <div>
                     <p className="font-bold">
                       {host_first_name} {host_last_name}

@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const pool = require("../startup/db");
 const QRCode = require("qrcode");
+const nodemailer = require("nodemailer");
+const fs = require("fs");
 
 // @desc: Generate QR Code
 // @route: POST /api/qr-code/generate
@@ -50,17 +52,43 @@ const generateQrCode = asyncHandler(async (req, res) => {
       );
     }
 
-    // Generate encrypted data
-    const encryptedData = jwt.sign(
-      { guestId: guest.rows[0].guest_uuid },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "30d",
-      }
+    // Generate qr code
+    const dataImage = await QRCode.toString(guest.rows[0].guest_uuid);
+
+    // Find user email and send them qr code
+    const guestInfo = await pool.query(
+      "SELECT * FROM guests WHERE guest_uuid = $1",
+      [guestId]
     );
 
-    // Generate qr code
-    const dataImage = await QRCode.toDataURL(encryptedData);
+    const transporter = nodemailer.createTransport({
+      service: "outlook",
+      auth: {
+        user: process.env.VILOG_EMAIL,
+        pass: process.env.VILOG_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.VILOG_EMAIL,
+      to: guestInfo.rows[0].guest_email,
+      subject: "QR Code for your next check in at AmaliTech",
+      html: `Hi ${guestInfo.rows[0].guest_first_name},
+
+    Use the QR code in this email to check in on your next visit.
+    
+    <img src="${dataImage}" />`,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        res.status(400);
+        console.log(error);
+        throw new Error("QR code could not be sent to email. Please try again");
+      } else {
+        res.status(200).send(`Email sent: ${info.response}`);
+      }
+    });
 
     // Return qr code
     return res.status(200).json({ dataImage });
@@ -80,8 +108,10 @@ const scanQrCode = asyncHandler(async (req, res) => {
       res.status(400).send("Token is required");
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decoded);
+    // const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // console.log(decoded);
+
+    const result = await QRCode.toString(token);
 
     // const qrCode = await pool.query("SELECT * FROM qr_code WHERE guest_id = $1 AND disabled = false", [decoded.user_id])
 
@@ -119,7 +149,7 @@ const scanQrCode = asyncHandler(async (req, res) => {
     // });
 
     // // Return token
-    return res.status(200).json({ token: authToken });
+    return res.status(200).json({ token: result });
   } catch (err) {
     console.log(err);
   }

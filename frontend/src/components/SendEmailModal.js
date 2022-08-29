@@ -2,7 +2,7 @@ import React from 'react'
 
 const SendEmailModal = () => {
   const handleSend = async () => {
-    // Hit route in backend to send file
+    //TODO: Hit route in backend to send file
   }
 
   return (

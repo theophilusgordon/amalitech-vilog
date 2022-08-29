@@ -3,6 +3,9 @@ import axios from "axios";
 import { FaUserTie, FaSearch } from "react-icons/fa";
 import { toast } from "react-toastify";
 import AddHostModal from "./AddHostModal";
+import defaultPhoto from "../images/default_photo.svg";
+
+
 const DashboardHosts = () => {
   const [hosts, setHosts] = useState([]);
   const [showAddHostModal, setShowAddHostModal] = useState(false);
@@ -70,13 +73,21 @@ const DashboardHosts = () => {
             } = host;
 
             return (
-              <div className="grid grid-cols-4 ml-10" key={index}>
+              <div className="grid grid-cols-4 ml-10 my-5" key={index}>
                 <div className="host flex text-gray-700 gap-3 col-span-3">
-                  <img
-                    src={host_profile_pic}
-                    alt={`${host_first_name}'s profile`}
-                    className="w-12 aspect-square"
-                  />
+                  {host_profile_pic ? (
+                    <img
+                      src={host_profile_pic}
+                      alt={`${host_first_name}'s profile`}
+                      className="w-12 aspect-square"
+                    />
+                  ) : (
+                    <img
+                      src={defaultPhoto}
+                      alt="Default"
+                      className="w-12 aspect-square rounded-full"
+                    />
+                  )}
                   <div>
                     <p className="font-bold">
                       {host_first_name} {host_last_name}

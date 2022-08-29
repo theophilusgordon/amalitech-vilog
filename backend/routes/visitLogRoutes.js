@@ -4,7 +4,7 @@ const {
   checkInGuest,
   checkOutGuest,
   getVisitLogs,
-  getVisitLog,
+  getHostVisitLogs,
 } = require("../controllers/visitLogController");
 
 /**
@@ -48,11 +48,11 @@ router.get("/", getVisitLogs);
  * paths:
  *  /api/visit-logs/:id:
  *    get:
- *      description: Use to get information about a specific visit log
+ *      description: Use to get information about a specific host's visit log
  *      responses:
  *        '200':
  *          description: Visit log successfully fetched
  */
-router.get("/:id", getVisitLog);
+router.get("/:id", getHostVisitLogs);
 
 module.exports = router;

@@ -19,6 +19,7 @@ const AdminDashboard = () => {
 
   const handleLogout = () => {
     navigate("/");
+    localStorage.clear()
   }
 
   const handleActive = (tab) => {

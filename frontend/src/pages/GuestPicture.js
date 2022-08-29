@@ -6,6 +6,8 @@ import { FaSignInAlt } from "react-icons/fa";
 import Header from "../components/Header";
 
 const GuestPicture = () => {
+  const id = localStorage.getItem("id");
+
   const [countdown, setCountdown] = useState(5);
 
   const navigate = useNavigate();
@@ -61,7 +63,6 @@ const GuestPicture = () => {
 
     const updatePhoto = async () => {
        
-      const id = localStorage.getItem("id");;
       const profile_photo = '';
       try {
         const response = await axios.put(`http://localhost:5000/api/guests/${id}`, {profile_photo})

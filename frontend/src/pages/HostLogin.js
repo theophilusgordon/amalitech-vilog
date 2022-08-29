@@ -1,52 +1,51 @@
-import {useState} from 'react'
-import axios from 'axios'
-import { useNavigate, Link } from 'react-router-dom'
-import {toast} from 'react-toastify'
-import {FaSignInAlt} from 'react-icons/fa'
-import Header from '../components/Header'
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { FaSignInAlt } from "react-icons/fa";
+import Header from "../components/Header";
 
-const AdminLogin = () => {
-    const [formData, setFormData] = useState({
-      email: "",
-      password: "",
-    });
+const HostLogin = () => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
+  const { email, password } = formData;
+  const navigate = useNavigate();
 
-    const { email, password } = formData;
-    const navigate = useNavigate();
+  const handleChange = (e) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
-    const handleChange = (e) => {
-      setFormData((prevState) => ({
-        ...prevState,
-        [e.target.name]: e.target.value,
-      }));
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const hostData = {
+      email,
+      password,
     };
 
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      const adminData = {
-        email,
-        password,
-      };
-
-      const postData = async () => {
-        try {
-          const response = await axios.post(
-            `http://localhost:5000/api/admins/login`,
-            adminData
-          );
-          if (response) {
-            localStorage.setItem("auth", response.data.token);
-            localStorage.setItem("id", response.data.admin_uuid);
-            navigate("/dashboard");
-          }
-        } catch (error) {
-          toast.error(error.response.data.message);
+    const postData = async () => {
+      try {
+        const response = await axios.post(
+          `http://localhost:5000/api/hosts/login`,
+          hostData
+        );
+        if (response) {
+          localStorage.setItem("auth", response.data.token);
+          localStorage.setItem("id", response.data.host_id);
+          navigate("/host-dashboard");
         }
-      };
-
-      postData();
+      } catch (error) {
+        toast.error(error.response.data.message);
+      }
     };
+
+    postData();
+  };
 
   return (
     <div>
@@ -84,13 +83,13 @@ const AdminLogin = () => {
           LOGIN
         </button>
       </form>
-      <Link to='/confirmation-code'>
+      <Link to="/confirmation-code">
         <p className="text-secondary text-center mt-10">
           Forgot password? Click here to change.
         </p>
       </Link>
     </div>
   );
-}
+};
 
-export default AdminLogin
+export default HostLogin;

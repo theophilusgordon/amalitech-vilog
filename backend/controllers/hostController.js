@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const pool = require("../startup/db");
+const nodemailer = require("nodemailer");
 
 // @desc: Register New Host
 // @route: POST /api/hosts/register
@@ -16,9 +17,10 @@ const registerHost = asyncHandler(async (req, res) => {
   }
 
   // Check if host already exists
-  const hostExists = await pool.query("SELECT * FROM hosts WHERE host_email = $1", [
-    email,
-  ]);
+  const hostExists = await pool.query(
+    "SELECT * FROM hosts WHERE host_email = $1",
+    [email]
+  );
 
   if (hostExists.rowCount !== 0) {
     res.status(400);
@@ -41,18 +43,43 @@ const registerHost = asyncHandler(async (req, res) => {
       phone: result.host_phone,
       token: generateToken(result.host_uuid),
     });
+
+    // Send mail to added host informing them about password to login
+    const transporter = nodemailer.createTransport({
+      service: "outlook",
+      auth: {
+        user: process.env.VILOG_EMAIL,
+        pass: process.env.VILOG_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.VILOG_EMAIL,
+      to: result.host_email,
+      subject: "AmaliTech ViLog added you as a Host",
+      text: `Hi ${result.host_first_name},
+
+      You have been added as a host on the AmaliTech ViLog System. You can login in with your email and password. 
+      
+      Your default password is 1234. Please change this to a more secure password.`,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        res.status(400);
+        console.log(error);
+        throw new Error(
+          "Confirmation code could not be sent to email. Please try again"
+        );
+      } else {
+        res.status(200).send(`Email sent: ${info.response}`);
+      }
+    });
   } else {
     res.status(400);
     throw new Error("Invalid user data");
   }
 });
-
-// Generate JWT
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: "30d",
-  });
-};
 
 // @desc: Get All Hosts
 // @route: GET /api/hosts
@@ -99,15 +126,14 @@ const updateHost = asyncHandler(async (req, res) => {
   const { profile_pic, first_name, last_name, email, phone, company } =
     req.body;
 
-    let field;
+  let field;
 
-    if(profile_pic) field = profile_pic;
-    if(first_name) field = first_name;
-    if(last_name) field = last_name;
-    if(email) field = email;
-    if(phone) field = phone;
-    if(company) field = company;
-  
+  if (profile_pic) field = profile_pic;
+  if (first_name) field = first_name;
+  if (last_name) field = last_name;
+  if (email) field = email;
+  if (phone) field = phone;
+  if (company) field = company;
 
   const id = req.params.id;
 
@@ -160,10 +186,217 @@ const deleteHost = asyncHandler(async (req, res) => {
   res.status(200).json(host.rows[0]);
 });
 
+// @desc: Authenticate A Host
+// @route: POST /api/hosts/login
+// @access: Public
+const loginHost = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    res.status(400);
+    throw new Error("Please provide email and password");
+  }
+
+  const host = await pool.query("SELECT * FROM hosts WHERE host_email = $1", [
+    email,
+  ]);
+
+  if (host.rowCount !== 0 && password === "1234") {
+    if (host.rows[0].host_password === "1234") {
+      const result = host.rows[0];
+      res.status(200).json({
+        host_id: result.host_uuid,
+        profile_pic: result.host_profile_pic,
+        name: `${result.host_first_name} ${result.host_last_name}`,
+        email: result.host_email,
+        phone: result.host_phone,
+        token: generateToken(result.host_uuid),
+      });
+      return;
+    }
+  }
+
+  if (
+    host.rowCount !== 0 &&
+    (await bcrypt.compare(password, host.rows[0].host_password))
+  ) {
+    const result = host.rows[0];
+    res.status(200).json({
+      host_id: result.host_uuid,
+      profile_pic: result.host_profile_pic,
+      name: `${result.host_first_name} ${result.host_last_name}`,
+      email: result.host_email,
+      phone: result.host_phone,
+      token: generateToken(result.host_uuid),
+    });
+  } else {
+    res.status(400);
+    throw new Error("Invalid credentials");
+  }
+});
+
+// Generate JWT
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: "30d",
+  });
+};
+
+// @desc: Get Confirmation Code
+// @route: POST /api/hosts/confirmation-code
+// @access: Public
+const getConfirmationCode = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    res.status(400);
+    throw new Error("Email is required to get confirmation code");
+  }
+
+  const hostExists = await pool.query(
+    "SELECT * FROM hosts WHERE host_email = $1",
+    [email]
+  );
+
+  if (hostExists.rowCount === 0) {
+    res.status(400);
+    throw new Error("Invalid host email");
+  }
+
+  // Generate Confirmation Code
+  function generateConfirmationCode() {
+    let result = "";
+    const characters = "0123456789";
+    for (let i = 0; i < 7; i++) {
+      result += characters.charAt(
+        Math.floor(Math.random() * characters.length)
+      );
+    }
+    return result;
+  }
+
+  const confirmationCode = generateConfirmationCode();
+
+  const confirmationCodeUUID = uuidv4();
+
+  const postConfirmationCode = await pool.query(
+    "INSERT INTO confirmation_code (confirmation_code_uuid, code) VALUES ($1, $2)",
+    [confirmationCodeUUID, confirmationCode]
+  );
+
+  await pool.query(
+    "UPDATE hosts SET host_confirmation_code_id = $1 WHERE host_email = $2",
+    [confirmationCodeUUID, email]
+  );
+
+  if (postConfirmationCode.rowCount !== 0) {
+    res.status(201).json(postConfirmationCode.rows[0]);
+  } else {
+    res.status(500);
+    throw new Error(
+      "Confirmation code could not be generated. Please try again"
+    );
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: "outlook",
+    auth: {
+      user: process.env.VILOG_EMAIL,
+      pass: process.env.VILOG_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.VILOG_EMAIL,
+    to: email,
+    subject: "AmaliTech ViLog Host Password Change",
+    text: `Use the confirmation code provided in this email to reset your password on AmaliTech ViLog.
+
+    Confirmation Code: ${confirmationCode}`,
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      res.status(400);
+      console.log(error);
+      throw new Error(
+        "Confirmation code could not be sent to email. Please try again"
+      );
+    } else {
+      res.status(200).send(`Email sent: ${info.response}`);
+    }
+  });
+});
+
+// @desc: Reset Host Password
+// @route: PUT /api/hosts/reset
+// @access: Public
+const updateHostPassword = asyncHandler(async (req, res) => {
+  const { confirmation_code, password, email } = req.body;
+
+  if (!email) {
+    res.status(400);
+    throw new Error("Please provide email one more time to change password");
+  }
+
+  if (!confirmation_code) {
+    res.status(400);
+    throw new Error(
+      "Please provide confirmation code sent to your email to change password"
+    );
+  }
+
+  const hostConfirmationCode = await pool.query(
+    "SELECT code FROM confirmation_code LEFT JOIN admins ON confirmation_code_uuid = admins.admin_confirmation_code_id"
+  );
+
+  if (
+    confirmation_code !==
+    hostConfirmationCode.rows[hostConfirmationCode.rowCount - 1].code
+  ) {
+    res.status(400);
+    throw new Error("Invalid Confirmation Code");
+  }
+
+  if (!password) {
+    res.status(400);
+    throw new Error("Please provide a new password to update old password");
+  }
+
+  // Hash Password
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  // Change Password
+  await pool.query(
+    "UPDATE hosts SET host_password = $1 WHERE host_email = $2",
+    [hashedPassword, email]
+  );
+
+  const updatedHost = await pool.query(
+    "SELECT * FROM admins WHERE admin_email = $1",
+    [email]
+  );
+
+  if (updatedHost.rowCount !== 0) {
+    const result = updatedHost.rows[0];
+    res.status(201).json({
+      id: result.host_uuid,
+      token: generateToken(result.host_uuid),
+    });
+  } else {
+    res.status(400);
+    throw new Error("Invalid user data to reset password");
+  }
+});
+
 module.exports = {
   registerHost,
   getHosts,
   getHost,
   updateHost,
   deleteHost,
+  loginHost,
+  updateHostPassword,
+  getConfirmationCode,
 };
