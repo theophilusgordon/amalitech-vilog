@@ -22,6 +22,16 @@ const checkInGuest = asyncHandler(async (req, res) => {
     throw new Error("Cannot check in invalid user");
   }
 
+  const guestFromLogs = await pool.query(
+    "SELECT sign_in FROM visit_logs WHERE guest_id = $1",
+    [id]
+  );
+  // Check if visitor is signed in
+  if (guestFromLogs.rows[0].sign_in !== null) {
+    res.status(400);
+    throw new Error("Visitor is already signed in");
+  }
+
   const generatedId = uuidv4();
 
   await pool.query(
@@ -29,7 +39,10 @@ const checkInGuest = asyncHandler(async (req, res) => {
     [generatedId, new Date(Date.now()), id]
   );
 
-  await pool.query("UPDATE guests SET guest_host_id = $1", [host_id]);
+  await pool.query(
+    "UPDATE guests SET guest_host_id = $1 WHERE guest_uuid = $2",
+    [host_id, id]
+  );
 
   const log_info = await pool.query(
     "SELECT * FROM guests LEFT JOIN hosts ON hosts.host_uuid = guests.guest_host_id LEFT JOIN visit_logs ON visit_logs.guest_id = guests.guest_uuid WHERE visit_log_uuid = $1",
@@ -75,10 +88,10 @@ const checkInGuest = asyncHandler(async (req, res) => {
 });
 
 // @desc: Sign Out A Visitor
-// @route: POST /api/visit-logs/check-out/:id
+// @route: POST /api/visit-logs/check-out
 // @access: Public
 const checkOutGuest = asyncHandler(async (req, res) => {
-  const {email} = req.body;
+  const { email } = req.body;
 
   const guestExists = await pool.query(
     "SELECT * FROM guests WHERE guest_email = $1",
@@ -91,15 +104,25 @@ const checkOutGuest = asyncHandler(async (req, res) => {
     throw new Error("Cannot check in invalid user");
   }
 
+  const searchId = await pool.query(
+    "SELECT guest_uuid FROM guests WHERE guest_email = $1",
+    [email]
+  );
+
+  const id = searchId.rows[0].guest_uuid;
+
+  const guestFromLogs = await pool.query("SELECT sign_in, sign_out FROM visit_logs WHERE guest_id = $1", [id]);
+
   // Check if visitor is signed in
-  if (guestExists.rows[0].sign_in === null) {
+  if (guestFromLogs.rows[0].sign_in === null) {
     res.status(400);
     throw new Error("Visitor is not signed in");
   }
 
-  await pool.query("UPDATE visit_logs SET sign_out = $1", [
-    new Date(Date.now()),
-  ]);
+  await pool.query(
+    "UPDATE visit_logs SET sign_out = $1 WHERE guest_id = $2 AND sign_out IS NULL",
+    [new Date(Date.now()), id]
+  );
 
   const log_info = await pool.query(
     "SELECT * FROM guests LEFT JOIN hosts ON hosts.host_uuid = guests.guest_host_id LEFT JOIN visit_logs ON visit_logs.guest_id = guests.guest_uuid"
@@ -142,7 +165,6 @@ const checkOutGuest = asyncHandler(async (req, res) => {
   res.status(201).json(result);
 });
 
-
 // @desc: Get all visit logs
 // @route: GET /api/visit-logs
 // @access: Public
@@ -159,16 +181,15 @@ const getVisitLogs = asyncHandler(async (req, res) => {
 // @route: GET /api/visit-logs/:id
 // @access: Public
 const getHostVisitLogs = asyncHandler(async (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   const log_info = await pool.query(
-    "SELECT * FROM guests LEFT JOIN hosts ON hosts.host_uuid = guests.guest_host_id LEFT JOIN visit_logs ON visit_logs.guest_id = guests.guest_uuid WHERE guest_host_id = $1 ORDER BY sign_in DESC",[id]
+    "SELECT * FROM guests LEFT JOIN hosts ON hosts.host_uuid = guests.guest_host_id LEFT JOIN visit_logs ON visit_logs.guest_id = guests.guest_uuid WHERE guest_host_id = $1 ORDER BY sign_in DESC",
+    [id]
   );
 
   const result = log_info.rows;
   res.status(201).json(result);
 });
-
-
 
 module.exports = {
   checkInGuest,

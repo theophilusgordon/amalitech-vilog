@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const {
   generateQrCode,
-  scanQrCode,
 } = require("../controllers/qrCodeController");
 
 /**
@@ -17,16 +16,5 @@ const {
  */
 router.post("/generate", generateQrCode);
 
-/**
- *@swagger
- * paths:
- *  /api/qr-code/scan:
- *    post:
- *      description: Use to scan QR Code
- *      responses:
- *        '200':
- *          description: QR Code successfully scanned
- */
-router.post("/scan", scanQrCode);
 
 module.exports = router;

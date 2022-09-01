@@ -1,9 +1,18 @@
 import { useState } from "react";
+import {useNavigate} from 'react-router-dom'
 import Header from "../components/Header";
 import { QrReader } from "react-qr-reader";
 
 const QRCodeScan = () => {
   const [data, setData] = useState("No result");
+  const navigate = useNavigate();
+
+  localStorage.setItem("id", data);
+  
+  if(data !== "No result"){
+    navigate('/selecthost')
+  }
+
   return (
     <div>
       <Header text={"Scan QR Code"} />
@@ -21,7 +30,6 @@ const QRCodeScan = () => {
           style={{ width: "100%" }}
         />
       </div>
-      <p>{data}</p>
     </div>
   );
 };

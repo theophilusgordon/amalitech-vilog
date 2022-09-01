@@ -3,7 +3,7 @@ import axios from "axios";
 import moment from "moment";
 import { toast } from "react-toastify";
 import defaultPhoto from "../images/default_photo.svg";
-import { FaIdCard, FaSearch, FaFilter } from "react-icons/fa";
+import { FaIdCardAlt, FaSearch, FaFilter } from "react-icons/fa";
 
 const DashboardGuestTracking = () => {
   const [data, setData] = useState([]);
@@ -25,12 +25,12 @@ const DashboardGuestTracking = () => {
     <div>
       <div className="header flex justify-between text-gray-500 font-bold text-2xl items-center py-5 px-10">
         <h1 className="flex items-center gap-3">
-          <FaIdCard /> Guests
+          <FaIdCardAlt /> Guests
         </h1>
         <div className="search flex items-center gap-5">
-          <input type="search" name="search" id="search" className="border-2" />
-          <FaSearch />
-          <FaFilter />
+          <input type="search" name="search" id="search" className="border-2 focus:outline-none px-3 font-normal py-1 text-xl rounded" placeholder="Search for guest..."/>
+          <FaSearch className="hover:cursor-pointer"/>
+          <FaFilter className="hover:cursor-pointer"/>
         </div>
       </div>
       <div className="list">

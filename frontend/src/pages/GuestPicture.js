@@ -65,18 +65,16 @@ const GuestPicture = () => {
        
       const profile_photo = '';
       try {
-        const response = await axios.put(`http://localhost:5000/api/guests/${id}`, {profile_photo})
+        await axios.put(`http://localhost:5000/api/guests/${id}`, {profile_photo})
 
-          if (response) {
-            navigate("/selecthost");
-          }
       } catch (error) {
         toast.error(error.response.data.message);
         
       }
     }
-
+    
     updatePhoto();
+    navigate("/selecthost");
   }
 
   return (

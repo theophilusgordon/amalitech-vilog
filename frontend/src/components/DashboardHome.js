@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import moment from "moment";
+import { saveAs } from "file-saver";
 import {
   FaUser,
   FaFileExport,
@@ -20,9 +21,13 @@ Chart.register(CategoryScale);
 
 Chart.defaults.plugins.legend.position = "left";
 
+let check = true;
+let ids = [];
 const DashboardHome = () => {
   const [data, setData] = useState([]);
   const [showSendEmailModal, setShowSendEmailModal] = useState(false);
+  const [hostData, setHostData] = useState([]);
+  const [hostGuestsNumbers, setHostGuestsNumbers] = useState([]);
 
   const getLogs = async () => {
     try {
@@ -47,11 +52,77 @@ const DashboardHome = () => {
     } catch (error) {
       toast.error(error.response.data.message);
     }
-  }
+  };
+
+  // FIXME: Download file not working properly
+  const getDownloadFile = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/export-csv", {
+        responseType: "blob",
+      });
+      console.log(response);
+    } catch (error) {
+      toast.error(error);
+      console.log(error);
+    }
+  };
+
+  const downloadFile = () => {
+    getDownloadFile().then((blob) => saveAs(blob, "file.csv"));
+  };
 
   const handleShare = () => {
-    showSendEmailModal ? setShowSendEmailModal(false) : setShowSendEmailModal(true);
+    showSendEmailModal
+      ? setShowSendEmailModal(false)
+      : setShowSendEmailModal(true);
+  };
+
+  useEffect(() => {
+    const getHosts = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/hosts`);
+        if (response) {
+          setHostData(response.data);
+        }
+      } catch (error) {
+        toast.error(error.response.data.message);
+      }
+    };
+
+    getHosts();
+  }, [hostData]);
+
+  const names = hostData.map((host) => {
+    return `${host.host_first_name} ${host.host_last_name}`;
+  });
+
+  if (check) {
+    ids = hostData.map((host) => {
+      return host.host_uuid;
+    });
+    if (ids.length > 1) {
+      check = false;
+    }
   }
+
+  useEffect(() => {
+    ids.map((id) => {
+      return async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:5000/api/guests/host/${id}`
+          );
+          if (response) {
+            setHostGuestsNumbers(response.data.length);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
+    });
+  }, [hostGuestsNumbers]);
+
+  // console.log(hostGuestsNumbers);
 
   return (
     <div>
@@ -65,7 +136,7 @@ const DashboardHome = () => {
             <FaFileExport />
             EXPORT
           </button>
-          <button className="flex items-center gap-2">
+          <button className="flex items-center gap-2" onClick={downloadFile}>
             <FaSave />
             SAVE
           </button>
@@ -112,31 +183,15 @@ const DashboardHome = () => {
         <div className="visit-chart mt-10">
           <h2 className="flex items-center gap-2 font-semibold text-gray-500 text-xl">
             <FaChartLine />
-            Daily Visitors (Last 30 days)
+            Daily Visitors (Last 7 days)
           </h2>
           <Line
             data={{
-              labels: [
-                "2",
-                "4",
-                "6",
-                "8",
-                "10",
-                "12",
-                "14",
-                "16",
-                "18",
-                "20",
-                "22",
-                "24",
-                "26",
-                "28",
-                "30",
-              ],
+              labels: ["1", "2", "3", "4", "5", "6", "7"],
               datasets: [
                 {
                   label: "Number of guests",
-                  data: [4, 8, 12, 20, 30, 40, 50, 20, 30, 12, 2, 5, 8, 25, 30],
+                  data: [4, 8, 12, 20, 30, 50, 21],
                   borderWidth: 2,
                   backgroundColor: "orange",
                 },
@@ -152,22 +207,15 @@ const DashboardHome = () => {
         <div className="hosts-chart mt-10 w-3/5">
           <h2 className="flex items-center gap-2 font-semibold text-gray-500 text-xl">
             <FaChartLine />
-            Busiest Hosts (Last 90 days)
+            Busiest Hosts
           </h2>
           <Pie
             data={{
-              labels: [
-                "Lisa-Marie Koomson",
-                "Thomas Darko",
-                "Emmanuel Asaber",
-                "Francis Nsiah",
-                "Kwamena Amo-Dadey",
-                "Francis Class-Peters",
-              ],
+              labels: names,
               datasets: [
                 {
                   label: "Number of guests",
-                  data: [80, 35, 102, 50, 30, 50],
+                  data: [20, 35, 10],
                   borderWidth: 2,
                   backgroundColor: [
                     "#7921B1",

@@ -23,3 +23,11 @@ body {
   height: 50px;
   z-index: 50;
 }
+
+.welcome {
+  margin-top: -20px;
+  height: 100vh;
+  background: rgba(0,0,139,.75) url('./images/background.jpg') no-repeat center center fixed;
+  background-size: cover;
+  background-color: rgba(0,0,139,.1);
+}

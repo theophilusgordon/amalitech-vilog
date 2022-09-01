@@ -40,7 +40,6 @@ const registerGuest = asyncHandler(async (req, res) => {
       name: `${result.guest_first_name} ${result.guest_last_name}`,
       email: result.guest_email,
       phone: result.guest_phone,
-      user_type: result.guest_user_type,
       token: generateToken(result.guest_uuid),
     });
   } else {

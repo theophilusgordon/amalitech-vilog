@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import {FaSignInAlt} from 'react-icons/fa'
+import { FaSignInAlt } from "react-icons/fa";
 import Header from "../components/Header";
 
 const GuestForm = () => {
@@ -44,6 +44,10 @@ const GuestForm = () => {
         );
         if (response) {
           localStorage.setItem("id", response.data.guest_id);
+
+          await axios.post(`http://localhost:5000/api/qr-code/generate`, {
+            id: response.data.guest_id,
+          });
 
           navigate("/picture");
         }

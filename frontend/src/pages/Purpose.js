@@ -20,7 +20,7 @@ const Purpose = () => {
         <select
           name="user_type"
           id="user_type"
-          className="border-none focus:border-none bg-orange-400 grid grid-cols-1 divide-y w-40 md:w-80 ml-10 text-white font-bold text-2xl md:text-4xl"
+          className="border-none focus:outline-none bg-orange-400 grid grid-cols-1 divide-y w-40 md:w-80 ml-10 text-white font-bold text-2xl md:text-4xl"
           value={userType}
           onChange={(e) => handleChange(e)}
         >
