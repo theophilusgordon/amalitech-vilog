@@ -38,14 +38,11 @@ const GuestForm = () => {
 
     const postData = async () => {
       try {
-        const response = await axios.post(
-          `http://localhost:5000/api/guests/register`,
-          guestData
-        );
+        const response = await axios.post(`/api/guests/register`, guestData);
         if (response) {
           localStorage.setItem("id", response.data.guest_id);
 
-          await axios.post(`http://localhost:5000/api/qr-code/generate`, {
+          await axios.post(`/api/qr-code/generate`, {
             id: response.data.guest_id,
           });
 

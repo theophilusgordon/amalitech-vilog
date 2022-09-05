@@ -39,10 +39,7 @@ const AddHostModal = () => {
 
     const postData = async () => {
       try {
-        const response = await axios.post(
-          `http://localhost:5000/api/hosts/register`,
-          hostData
-        );
+        const response = await axios.post(`/api/hosts/register`, hostData);
         if (response) {
           toast.success("Host Added");
           window.location.reload();
@@ -64,7 +61,12 @@ const AddHostModal = () => {
         >
           Upload Host Photo
         </label>
-        <input type="file" name="profile" id="profile_pic" className="mb-5 text-secondary text-sm file:text-primary file:bg-white file:border-none file:hover:cursor-pointer file:font-semibold" />
+        <input
+          type="file"
+          name="profile"
+          id="profile_pic"
+          className="mb-5 text-secondary text-sm file:text-primary file:bg-white file:border-none file:hover:cursor-pointer file:font-semibold"
+        />
       </div>
       <div className="inputs grid grid-cols-1 md:grid-cols-2 gap-10">
         <div className="form-group flex flex-col">

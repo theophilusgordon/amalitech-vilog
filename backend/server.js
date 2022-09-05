@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const port = process.env.PORT || 5000;
 const swaggerDocs = require("./startup/swagger");
@@ -18,6 +19,21 @@ app.use("/api/guests", require("./routes/guestRoutes"));
 app.use("/api/visit-logs", require("./routes/visitLogRoutes"));
 app.use("/api/export-csv", require("./routes/exportCSVRoutes"));
 app.use("/api/qr-code", require("./routes/qrCodeRoutes"));
+
+// Serve frontend
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/build")));
+
+  app.get("*", (req, res) =>
+    res.sendFile(
+      path.resolve(__dirname, "../", "frontend", "build", "index.html")
+    )
+  );
+} else {
+  app.get("/", (req, res) =>
+    res.send("You should be in production environment to run this app")
+  );
+}
 
 app.use(errorHandler);
 

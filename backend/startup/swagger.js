@@ -11,7 +11,7 @@ const options = {
         name: "AmaliTech",
         email: "theophilus.gordon@amalitech.org",
       },
-      servers: ["http://localhost:5000"],
+      servers: [""],
     },
     components: {
       securitySchemas: {
@@ -43,7 +43,9 @@ function swaggerDocs(app, port) {
     res.send(swaggerSpec);
   });
 
-  console.log(`Swagger Documentation is available at http://localhost:${port}/api-docs`);
+  console.log(
+    `Swagger Documentation is available at http://localhost:${port}/api-docs`
+  );
 }
 
 module.exports = swaggerDocs;

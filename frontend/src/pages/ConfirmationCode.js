@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import {toast} from 'react-toastify'
+import { toast } from "react-toastify";
 import Header from "../components/Header";
 
 const ConfirmationCode = () => {
@@ -14,17 +14,14 @@ const ConfirmationCode = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post(
-        `http://localhost:5000/api/hosts/confirmation-code`,
-        {
-          email,
-        }
-      );
+      const response = await axios.post(`/api/hosts/confirmation-code`, {
+        email,
+      });
       if (response) {
         navigate("/change-password");
       }
     } catch (error) {
-      toast.error(error.response.data.message)
+      toast.error(error.response.data.message);
     }
   };
 
@@ -32,10 +29,9 @@ const ConfirmationCode = () => {
     <div>
       <Header text={"Enter email to get confirmation code"} />
       <div className="form-group flex flex-col gap-3 mt-20 w-2/5 min-w-9xl mx-auto">
-        <label
-          htmlFor="email"
-          className="text-gray-500 text-sm font-bold"
-        >EMAIL</label>
+        <label htmlFor="email" className="text-gray-500 text-sm font-bold">
+          EMAIL
+        </label>
         <input
           type="email"
           name="email"

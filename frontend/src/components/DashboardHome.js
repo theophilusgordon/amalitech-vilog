@@ -21,17 +21,15 @@ Chart.register(CategoryScale);
 
 Chart.defaults.plugins.legend.position = "left";
 
-let check = true;
-let ids = [];
 const DashboardHome = () => {
   const [data, setData] = useState([]);
   const [showSendEmailModal, setShowSendEmailModal] = useState(false);
   const [hostData, setHostData] = useState([]);
-  const [hostGuestsNumbers, setHostGuestsNumbers] = useState([]);
+  const [guestNumbers, setGuestNumbers] = useState([]);
 
   const getLogs = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/visit-logs`);
+      const response = await axios.get(`/api/visit-logs`);
       if (response) {
         setData(response.data);
       }
@@ -45,7 +43,7 @@ const DashboardHome = () => {
 
   const handleExport = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/export-csv`);
+      const response = await axios.get(`/api/export-csv`);
       if (response) {
         toast.success("Export to CSV successful");
       }
@@ -54,10 +52,9 @@ const DashboardHome = () => {
     }
   };
 
-  // FIXME: Download file not working properly
   const getDownloadFile = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/export-csv", {
+      const response = await axios.get("/api/export-csv", {
         responseType: "blob",
       });
       console.log(response);
@@ -80,7 +77,7 @@ const DashboardHome = () => {
   useEffect(() => {
     const getHosts = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/hosts`);
+        const response = await axios.get(`/api/hosts`);
         if (response) {
           setHostData(response.data);
         }
@@ -92,37 +89,29 @@ const DashboardHome = () => {
     getHosts();
   }, [hostData]);
 
-  const names = hostData.map((host) => {
-    return `${host.host_first_name} ${host.host_last_name}`;
-  });
+  const names = hostData.map(
+    (host) => `${host.host_first_name} ${host.host_last_name}`
+  );
 
-  if (check) {
-    ids = hostData.map((host) => {
-      return host.host_uuid;
-    });
-    if (ids.length > 1) {
-      check = false;
-    }
-  }
+  const ids = hostData.map((host) => host.host_uuid);
 
   useEffect(() => {
     ids.map((id) => {
       return async () => {
         try {
-          const response = await axios.get(
-            `http://localhost:5000/api/guests/host/${id}`
-          );
+          const response = await axios.get(`/api/guests/host/${id}`);
           if (response) {
-            setHostGuestsNumbers(response.data.length);
+            console.log(response.data);
+            setGuestNumbers(response.data.length);
           }
         } catch (error) {
           console.log(error);
         }
       };
     });
-  }, [hostGuestsNumbers]);
+  }, [guestNumbers, ids]);
 
-  // console.log(hostGuestsNumbers);
+  // console.log(guestNumbers);
 
   return (
     <div>
@@ -154,7 +143,7 @@ const DashboardHome = () => {
           <h3>Host</h3>
         </div>
         <div className="content max-h-40 overflow-hidden">
-          {data.map((content) => {
+          {data.map((content, index) => {
             const {
               sign_in,
               guest_first_name,
@@ -163,7 +152,7 @@ const DashboardHome = () => {
               host_last_name,
             } = content;
             return (
-              <div className="grid grid-cols-3 pb-3">
+              <div key={index} className="grid grid-cols-3 pb-3">
                 <p className="flex items-center gap-2">
                   <FaClock className="text-gray-500" />
                   {moment(sign_in).format("h:mma")}

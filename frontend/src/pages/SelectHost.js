@@ -20,9 +20,7 @@ const SelectHost = () => {
   useEffect(() => {
     const searchHost = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/guests/hosts`
-        );
+        const response = await axios.get(`/api/guests/hosts`);
 
         if (response) {
           setHosts(
@@ -48,10 +46,9 @@ const SelectHost = () => {
   const handleSelect = async (host_uuid) => {
     const id = localStorage.getItem("id");
     try {
-      const response = await axios.post(
-        `http://localhost:5000/api/visit-logs/check-in/${id}`,
-        { host_id: host_uuid }
-      );
+      const response = await axios.post(`/api/visit-logs/check-in/${id}`, {
+        host_id: host_uuid,
+      });
       if (response) {
         navigate("/success");
         localStorage.clear();

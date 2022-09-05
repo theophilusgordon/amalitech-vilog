@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import {toast} from 'react-toastify'
+import { toast } from "react-toastify";
 import axios from "axios";
 import { FaSignInAlt } from "react-icons/fa";
 import Header from "../components/Header";
@@ -62,20 +62,17 @@ const GuestPicture = () => {
     e.preventDefault();
 
     const updatePhoto = async () => {
-       
-      const profile_photo = '';
+      const profile_photo = "";
       try {
-        await axios.put(`http://localhost:5000/api/guests/${id}`, {profile_photo})
-
+        await axios.put(`/api/guests/${id}`, { profile_photo });
       } catch (error) {
         toast.error(error.response.data.message);
-        
       }
-    }
-    
+    };
+
     updatePhoto();
     navigate("/selecthost");
-  }
+  };
 
   return (
     <div>
@@ -102,8 +99,10 @@ const GuestPicture = () => {
           <p className="text-center text-8xl md:text-9xl">{countdown}</p>
         </div>
       </div>
-      <button className="bg-primary text-white rounded px-10 py-2 mt-10 flex items-center gap-2 font-bold text-2xl hover:bg-orange-500 mx-auto"
-      onClick={(e) => handleSubmit(e)}>
+      <button
+        className="bg-primary text-white rounded px-10 py-2 mt-10 flex items-center gap-2 font-bold text-2xl hover:bg-orange-500 mx-auto"
+        onClick={(e) => handleSubmit(e)}
+      >
         <FaSignInAlt />
         SUBMIT
       </button>

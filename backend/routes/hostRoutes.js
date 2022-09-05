@@ -4,7 +4,6 @@ const {
   registerHost,
   getHosts,
   getHost,
-  updateHost,
   deleteHost,
   loginHost,
   updateHostPassword,
@@ -46,18 +45,6 @@ router.get("/", getHosts);
  *          description: Host successfully fetched
  */
 router.get("/host/:id", getHost);
-
-/**
- *@swagger
- * paths:
- *  /api/hosts/:id:
- *    put:
- *      description: Use to change a host information
- *      responses:
- *        '200':
- *          description: Host information successfully changed
- */
-router.put("/host/:id", updateHost);
 
 /**
  *@swagger

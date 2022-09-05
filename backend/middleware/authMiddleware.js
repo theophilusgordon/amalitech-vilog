@@ -10,13 +10,10 @@ const adminProtect = asyncHandler(async (req, res, next) => {
     req.headers.authorization.startsWith("Bearer")
   ) {
     try {
-      // Get header token
       token = req.headers.authorization.split(" ")[1];
 
-      // Verify token
       const verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Get user verified token
       req.user = await pool.query(
         "SELECT * FROM admins WHERE admin_uuid = $1",
         [verifiedToken.id]

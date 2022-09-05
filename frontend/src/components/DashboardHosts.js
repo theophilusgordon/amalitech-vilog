@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 import AddHostModal from "./AddHostModal";
 import defaultPhoto from "../images/default_photo.svg";
 
-
 const DashboardHosts = () => {
   const [hosts, setHosts] = useState([]);
   const [showAddHostModal, setShowAddHostModal] = useState(false);
@@ -13,7 +12,7 @@ const DashboardHosts = () => {
   useEffect(() => {
     const searchHost = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/hosts`);
+        const response = await axios.get(`/api/hosts`);
 
         if (response) {
           setHosts(response.data);
@@ -27,9 +26,7 @@ const DashboardHosts = () => {
 
   const handleDelete = (host_uuid) => {
     try {
-      const response = axios.delete(
-        `http://localhost:5000/api/hosts/${host_uuid}`
-      );
+      const response = axios.delete(`/api/hosts/${host_uuid}`);
       if (response) {
         toast.success("Host Deleted");
       }

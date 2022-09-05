@@ -10,7 +10,7 @@ const DashboardGuestTracking = () => {
 
   const getLogs = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/visit-logs`);
+      const response = await axios.get(`/api/visit-logs`);
       if (response) {
         setData(response.data);
       }
@@ -28,9 +28,15 @@ const DashboardGuestTracking = () => {
           <FaIdCardAlt /> Guests
         </h1>
         <div className="search flex items-center gap-5">
-          <input type="search" name="search" id="search" className="border-2 focus:outline-none px-3 font-normal py-1 text-xl rounded" placeholder="Search for guest..."/>
-          <FaSearch className="hover:cursor-pointer"/>
-          <FaFilter className="hover:cursor-pointer"/>
+          <input
+            type="search"
+            name="search"
+            id="search"
+            className="border-2 focus:outline-none px-3 font-normal py-1 text-xl rounded"
+            placeholder="Search for guest..."
+          />
+          <FaSearch className="hover:cursor-pointer" />
+          <FaFilter className="hover:cursor-pointer" />
         </div>
       </div>
       <div className="list">

@@ -13,9 +13,7 @@ const HostDashboard = () => {
 
   const getLogs = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/visit-logs/${id}`
-      );
+      const response = await axios.get(`/api/visit-logs/${id}`);
       if (response) {
         setData(response.data);
       }

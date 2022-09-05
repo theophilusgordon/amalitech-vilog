@@ -30,10 +30,7 @@ const HostLogin = () => {
 
     const postData = async () => {
       try {
-        const response = await axios.post(
-          `http://localhost:5000/api/hosts/login`,
-          hostData
-        );
+        const response = await axios.post(`/api/hosts/login`, hostData);
         if (response) {
           localStorage.setItem("auth", response.data.token);
           localStorage.setItem("id", response.data.host_id);
