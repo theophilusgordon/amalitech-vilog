@@ -30,6 +30,7 @@ platform who are also employees.
 
 - Click on "Click Here" and select purpose to log in or log out as a visitor, a host or an admin.
 - A guest with a QR Code should click on the QR image on the bottom left to check in.
+- API Documentation available at /api-docs
 
 _Deployment Link:_
 
