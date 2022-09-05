@@ -36,13 +36,14 @@ _Deployment Link:_
 
 <https://amalitech-vilog.herokuapp.com/>
 
-## Technologies
+## Technologies and Tools
 
 - ReactJS
 - Tailwind CSS
 - NodeJS
 - Express
 - PostgreSQL
+- Swagger
 
 ## Author
 
