@@ -28,18 +28,19 @@ platform who are also employees.
 
 ## Usage
 
-- Write a detailed usage
+- Click on "Click Here" and select purpose to log in or log out as a visitor, a host or an admin.
+- A guest with a QR Code should click on the QR image on the bottom left to check in.
 
 _Deployment Link:_
 
-<>
+<https://amalitech-vilog.herokuapp.com/>
 
 ## Technologies
 
-- React.JS
-- CSS
-- Node.JS
-- ExpressJS
+- ReactJS
+- Tailwind CSS
+- NodeJS
+- Express
 - PostgreSQL
 
 ## Author
