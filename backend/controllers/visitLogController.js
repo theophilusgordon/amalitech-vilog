@@ -26,7 +26,7 @@ const checkInGuest = asyncHandler(async (req, res) => {
     "SELECT sign_in FROM visit_logs WHERE guest_id = $1",
     [id]
   );
-  // Check if visitor is signed in
+
   if (guestFromLogs.rows[0].sign_in !== null) {
     res.status(400);
     throw new Error("Visitor is already signed in");
@@ -98,7 +98,6 @@ const checkOutGuest = asyncHandler(async (req, res) => {
     [email]
   );
 
-  // Check if visitor exists
   if (guestExists.rowCount === 0) {
     res.status(400);
     throw new Error("Cannot check in invalid user");
@@ -113,7 +112,6 @@ const checkOutGuest = asyncHandler(async (req, res) => {
 
   const guestFromLogs = await pool.query("SELECT sign_in, sign_out FROM visit_logs WHERE guest_id = $1", [id]);
 
-  // Check if visitor is signed in
   if (guestFromLogs.rows[0].sign_in === null) {
     res.status(400);
     throw new Error("Visitor is not signed in");

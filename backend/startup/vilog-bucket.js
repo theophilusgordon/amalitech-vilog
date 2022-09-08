@@ -10,7 +10,6 @@ const s3 = new AWS.S3({
 const params = {
   Bucket: BUCKET_NAME,
   CreateBucketConfiguration: {
-    // Set your region here
     LocationConstraint: "eu-west-1",
   },
 };

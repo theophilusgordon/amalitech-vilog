@@ -15,7 +15,6 @@ const registerGuest = asyncHandler(async (req, res) => {
     throw new Error("Please add all fields");
   }
 
-  // Check if guest already exists
   const guestExists = await pool.query(
     "SELECT * FROM guests WHERE guest_email = $1",
     [email]
@@ -26,7 +25,6 @@ const registerGuest = asyncHandler(async (req, res) => {
     throw new Error("Guest already exists");
   }
 
-  // Create Guest
   const guest = await pool.query(
     "INSERT INTO guests (guest_uuid, guest_profile_pic, guest_first_name, guest_last_name, guest_email, guest_phone, guest_company) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *",
     [uuidv4(), profile_pic, first_name, last_name, email, phone, company]
@@ -48,7 +46,6 @@ const registerGuest = asyncHandler(async (req, res) => {
   }
 });
 
-// Generate JWT
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: "30d",
@@ -69,7 +66,6 @@ const getGuests = asyncHandler(async (req, res) => {
 const getHostGuests = asyncHandler(async (req, res) => {
   const {id} = req.params;
 
-  // Check if host exists
   const hostExists = await pool.query('SELECT * FROM hosts WHERE host_uuid = $1', [id])
   if(hostExists.rowCount === 0){
     res.status(400);
@@ -91,7 +87,6 @@ const getGuest = asyncHandler(async (req, res) => {
     throw new Error("Please provide an id");
   }
 
-  // Check if guest exists
   const guestExists = await pool.query(
     "SELECT * FROM guests WHERE guest_uuid = $1",
     [id]
@@ -122,7 +117,6 @@ const updateGuest = asyncHandler(async (req, res) => {
     throw new Error("Please provide an id");
   }
 
-  // Check if guest already exists
   const guestExists = await pool.query(
     "SELECT * FROM guests WHERE guest_uuid = $1",
     [id]

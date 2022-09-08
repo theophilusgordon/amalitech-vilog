@@ -20,7 +20,6 @@ app.use("/api/visit-logs", require("./routes/visitLogRoutes"));
 app.use("/api/export-csv", require("./routes/exportCSVRoutes"));
 app.use("/api/qr-code", require("./routes/qrCodeRoutes"));
 
-// Serve frontend
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/build")));
 

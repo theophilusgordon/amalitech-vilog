@@ -24,7 +24,6 @@ const registerAdmin = asyncHandler(async (req, res) => {
     throw new Error("Please add all required fields");
   }
 
-  // Check if admin already exists
   const adminExists = await pool.query(
     "SELECT * FROM admins WHERE admin_email = $1",
     [email]
@@ -35,11 +34,9 @@ const registerAdmin = asyncHandler(async (req, res) => {
     throw new Error("Admin already exists");
   }
 
-  // Hash password
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  // Create Admin
   const admin = await pool.query(
     "INSERT INTO admins (admin_uuid, admin_profile_pic, admin_first_name, admin_last_name, admin_email, admin_phone, admin_company, admin_password) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING admin_uuid, admin_profile_pic, admin_first_name, admin_last_name, admin_email, admin_phone, admin_company",
     [
@@ -105,7 +102,6 @@ const loginAdmin = asyncHandler(async (req, res) => {
   }
 });
 
-// Generate JWT
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: "30d",
@@ -133,7 +129,6 @@ const getConfirmationCode = asyncHandler(async (req, res) => {
     throw new Error("Invalid admin email");
   }
 
-  // Generate Confirmation Code
   function generateConfirmationCode() {
     let result = "";
     const characters = "0123456789";
@@ -228,11 +223,9 @@ const updateAdminPassword = asyncHandler(async (req, res) => {
     throw new Error("Please provide a new password to update old password");
   }
 
-  // Hash Password
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  // Change Password
   const updatePassword = await pool.query("UPDATE admins SET admin_password = $1 WHERE admin_email = $2", [hashedPassword, email]);
 
   const updatedAdmin = await pool.query("SELECT * FROM admins WHERE admin_email = $1", [email])

@@ -16,7 +16,6 @@ const registerHost = asyncHandler(async (req, res) => {
     throw new Error("Please add all fields");
   }
 
-  // Check if host already exists
   const hostExists = await pool.query(
     "SELECT * FROM hosts WHERE host_email = $1",
     [email]
@@ -27,7 +26,6 @@ const registerHost = asyncHandler(async (req, res) => {
     throw new Error("Host already exists");
   }
 
-  // Create Host
   const host = await pool.query(
     "INSERT INTO hosts (host_uuid, host_profile_pic, host_first_name, host_last_name, host_email, host_phone, host_company) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *",
     [uuidv4(), profile_pic, first_name, last_name, email, phone, company]
@@ -44,7 +42,6 @@ const registerHost = asyncHandler(async (req, res) => {
       token: generateToken(result.host_uuid),
     });
 
-    // Send mail to added host informing them about password to login
     const transporter = nodemailer.createTransport({
       service: "outlook",
       auth: {
@@ -100,7 +97,6 @@ const getHost = asyncHandler(async (req, res) => {
     throw new Error("Please provide an id");
   }
 
-  // Check if host already exists
   const hostExists = await pool.query(
     "SELECT * FROM hosts WHERE host_uuid = $1",
     [id]
@@ -130,7 +126,6 @@ const deleteHost = asyncHandler(async (req, res) => {
     throw new Error("Please provide an id");
   }
 
-  // Check if host already exists
   const hostExists = await pool.query(
     "SELECT * FROM hosts WHERE host_uuid = $1",
     [id]
@@ -194,7 +189,6 @@ const loginHost = asyncHandler(async (req, res) => {
   }
 });
 
-// Generate JWT
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: "30d",
@@ -222,7 +216,6 @@ const getConfirmationCode = asyncHandler(async (req, res) => {
     throw new Error("Invalid host email");
   }
 
-  // Generate Confirmation Code
   function generateConfirmationCode() {
     let result = "";
     const characters = "0123456789";
@@ -322,11 +315,9 @@ const updateHostPassword = asyncHandler(async (req, res) => {
     throw new Error("Please provide a new password to update old password");
   }
 
-  // Hash Password
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  // Change Password
   await pool.query(
     "UPDATE hosts SET host_password = $1 WHERE host_email = $2",
     [hashedPassword, email]

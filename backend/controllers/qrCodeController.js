@@ -11,7 +11,6 @@ const generateQrCode = asyncHandler(async (req, res) => {
   try {
     const { id } = req.body;
 
-    // Validate user input
     if (!id) {
       res.status(400);
       throw new Error("Guest Id is required");
@@ -33,7 +32,6 @@ const generateQrCode = asyncHandler(async (req, res) => {
       [id]
     );
 
-    // If qr exist, update disable to true and then create a new qr record
     if (qrExist.rowCount !== 0) {
       await pool.query(
         "INSERT INTO qr_code (qr_code_uuid, guest_id, disabled) VALUES($1, $2, $3)",
@@ -50,10 +48,8 @@ const generateQrCode = asyncHandler(async (req, res) => {
       );
     }
 
-    // Generate QR code
     const dataImage = await QRCode.toDataURL(guest.rows[0].guest_uuid);
 
-    // Find user email and send them qr code
     const guestInfo = await pool.query(
       "SELECT * FROM guests WHERE guest_uuid = $1",
       [id]
@@ -92,7 +88,6 @@ const generateQrCode = asyncHandler(async (req, res) => {
       }
     });
 
-    // Return qr code
     return res.status(200).json({ dataImage });
   } catch (err) {
     console.log(err);
