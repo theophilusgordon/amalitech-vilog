@@ -11,7 +11,7 @@ const devConfig = {
 const prodConfig = {
   connectionString: process.env.DATABASE_URL,
   ssl: true,
-  sslfactory: org.postgresql.ssl.NonValidatingFactory
+  sslfactory: "org.postgresql.ssl.NonValidatingFactory"
 };
 
 const pool = new Pool(
