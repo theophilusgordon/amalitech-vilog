@@ -155,21 +155,6 @@ const loginHost = asyncHandler(async (req, res) => {
     email,
   ]);
 
-  if (host.rowCount !== 0 && password === "1234") {
-    if (host.rows[0].host_password === "1234") {
-      const result = host.rows[0];
-      res.status(200).json({
-        host_id: result.host_uuid,
-        profile_pic: result.host_profile_pic,
-        name: `${result.host_first_name} ${result.host_last_name}`,
-        email: result.host_email,
-        phone: result.host_phone,
-        token: generateToken(result.host_uuid),
-      });
-      return;
-    }
-  }
-
   if (
     host.rowCount !== 0 &&
     (await bcrypt.compare(password, host.rows[0].host_password))

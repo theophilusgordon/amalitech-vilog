@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Header from "../components/Header";
+import defaultPhoto from "../images/default_photo.svg";
 
 const SelectHost = () => {
   const [searchText, setSearchText] = useState("");
@@ -90,11 +91,19 @@ const SelectHost = () => {
                   className="px-5 py-2 my-5 flex bg-primary rounded text-white gap-10 items-center"
                   onClick={() => handleSelect(host_uuid)}
                 >
-                  <img
-                    src={host_profile_pic}
-                    alt={`${host_first_name}'s profile pic`}
-                    className="w-10 aspect-square text-xs rounded-full"
-                  />
+                  {host_profile_pic ? (
+                    <img
+                      src={host_profile_pic}
+                      alt={`${host_first_name}'s profile pic`}
+                      className="w-10 aspect-square text-xs rounded-full"
+                    />
+                  ) : (
+                    <img
+                      src={defaultPhoto}
+                      alt="Default"
+                      className="w-12 aspect-square rounded-full"
+                    />
+                  )}
                   <div className="details">
                     <h3 className="font-bold text-xl">
                       {host_first_name} {host_last_name}

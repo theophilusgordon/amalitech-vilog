@@ -23,7 +23,8 @@ CREATE TABLE hosts(
   host_first_name VARCHAR(255) NOT NULL,
   host_last_name VARCHAR(255) NOT NULL,
   host_company VARCHAR(255),
-  host_password VARCHAR(255) NOT NULL DEFAULT '1234',
+  host_password VARCHAR(255) NOT NULL DEFAULT '$2a$12$.1qTOPm.uf9QP/QbK0jKhud2W1ikBU3E1rljDz/M1NfGcOeWuc9q6
+',
   host_confirmation_code_id UUID REFERENCES confirmation_code (confirmation_code_uuid) 
 );
 

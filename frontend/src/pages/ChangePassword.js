@@ -61,8 +61,8 @@ const ChangePassword = () => {
           </label>
           <input
             type="text"
-            name="confirmation-code"
-            id="confirmation-code"
+            name="confirmation_code"
+            id="confirmation_code"
             className="border-b-4 border-primary focus:outline-none caret-primary text-primary"
             value={confirmation_code}
             onChange={(e) => handleChange(e)}
