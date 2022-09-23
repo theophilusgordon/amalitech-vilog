@@ -1,26 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const {
-  registerHost,
   getHosts,
   getHost,
-  deleteHost,
   loginHost,
   updateHostPassword,
   getConfirmationCode
 } = require("../controllers/hostController");
 
-/**
- *@swagger
- * paths:
- *  /api/hosts/register:
- *    post:
- *      description: Use to add a host
- *      responses:
- *        '200':
- *          description: Host successfully added
- */
-router.post("/register", registerHost);
+
 
 /**
  *@swagger
@@ -46,17 +34,7 @@ router.get("/", getHosts);
  */
 router.get("/host/:id", getHost);
 
-/**
- *@swagger
- * paths:
- *  /api/hosts/:id:
- *    delete:
- *      description: Use to delete a host
- *      responses:
- *        '200':
- *          description: Host successfully deleted
- */
-router.delete("/host/:id", deleteHost);
+
 
 /**
  *@swagger

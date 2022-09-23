@@ -22,15 +22,15 @@ const checkInGuest = asyncHandler(async (req, res) => {
     throw new Error("Cannot check in invalid user");
   }
 
-  const guestFromLogs = await pool.query(
-    "SELECT sign_in FROM visit_logs WHERE guest_id = $1",
-    [id]
-  );
+  // const guestFromLogs = await pool.query(
+  //   "SELECT sign_in FROM visit_logs WHERE guest_id = $1",
+  //   [id]
+  // );
 
-  if (guestFromLogs.rows[0].sign_in !== null) {
-    res.status(400);
-    throw new Error("Visitor is already signed in");
-  }
+  // if (!guestFromLogs.rows[0].sign_in) {
+  //   res.status(400);
+  //   throw new Error("Visitor is already signed in");
+  // }
 
   const generatedId = uuidv4();
 

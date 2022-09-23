@@ -39,7 +39,10 @@ const AddHostModal = () => {
 
     const postData = async () => {
       try {
-        const response = await axios.post(`/api/hosts/register`, hostData);
+        const response = await axios.post(
+          `/api/admins/host/register`,
+          hostData
+        );
         if (response) {
           toast.success("Host Added");
           window.location.reload();

@@ -4,14 +4,14 @@ const pool = require("../startup/db");
 
 const adminProtect = asyncHandler(async (req, res, next) => {
   let token;
-
+  console.log(req.headers);
+  console.log(req.user);
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
-  ) {
+    ) {
     try {
       token = req.headers.authorization.split(" ")[1];
-
       const verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
 
       req.user = await pool.query(

@@ -5,6 +5,8 @@ const {
   loginAdmin,
   getConfirmationCode,
   updateAdminPassword,
+  registerHost,
+  deleteHost
 } = require("../controllers/adminController");
 
 /**
@@ -54,5 +56,29 @@ router.post("/confirmation-code", getConfirmationCode);
  *          description: Admin password successfully changed
  */
 router.put("/reset", updateAdminPassword);
+
+/**
+ *@swagger
+ * paths:
+ *  /api/admins/host/register:
+ *    post:
+ *      description: Use to add a host
+ *      responses:
+ *        '200':
+ *          description: Host successfully added
+ */
+router.post("/host/register", registerHost);
+
+/**
+ *@swagger
+ * paths:
+ *  /api/admins/host/:id:
+ *    delete:
+ *      description: Use to delete a host
+ *      responses:
+ *        '200':
+ *          description: Host successfully deleted
+ */
+router.delete("/host/:id", deleteHost);
 
 module.exports = router;

@@ -26,7 +26,7 @@ const DashboardHosts = () => {
 
   const handleDelete = (host_uuid) => {
     try {
-      const response = axios.delete(`/api/hosts/${host_uuid}`);
+      const response = axios.delete(`/api/admins/host/${host_uuid}`);
       if (response) {
         toast.success("Host Deleted");
       }

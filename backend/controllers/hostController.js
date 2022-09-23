@@ -4,80 +4,6 @@ const { v4: uuidv4 } = require("uuid");
 const pool = require("../startup/db");
 const nodemailer = require("nodemailer");
 
-// @desc: Register New Host
-// @route: POST /api/hosts/register
-// @access: Private
-const registerHost = asyncHandler(async (req, res) => {
-  const { profile_pic, first_name, last_name, email, phone, company } =
-    req.body;
-
-  if (!first_name || !last_name || !email || !phone || !company) {
-    res.status(400);
-    throw new Error("Please add all fields");
-  }
-
-  const hostExists = await pool.query(
-    "SELECT * FROM hosts WHERE host_email = $1",
-    [email]
-  );
-
-  if (hostExists.rowCount !== 0) {
-    res.status(400);
-    throw new Error("Host already exists");
-  }
-
-  const host = await pool.query(
-    "INSERT INTO hosts (host_uuid, host_profile_pic, host_first_name, host_last_name, host_email, host_phone, host_company) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-    [uuidv4(), profile_pic, first_name, last_name, email, phone, company]
-  );
-
-  if (host.rowCount !== 0) {
-    const result = host.rows[0];
-    res.status(201).json({
-      host_id: result.host_uuid,
-      profile_pic: result.host_profile_pic,
-      name: `${result.host_first_name} ${result.host_last_name}`,
-      email: result.host_email,
-      phone: result.host_phone,
-      token: generateToken(result.host_uuid),
-    });
-
-    const transporter = nodemailer.createTransport({
-      service: "outlook",
-      auth: {
-        user: process.env.VILOG_EMAIL,
-        pass: process.env.VILOG_PASS,
-      },
-    });
-
-    const mailOptions = {
-      from: process.env.VILOG_EMAIL,
-      to: result.host_email,
-      subject: "AmaliTech ViLog added you as a Host",
-      text: `Hi ${result.host_first_name},
-
-      You have been added as a host on the AmaliTech ViLog System. You can login in with your email and password. 
-      
-      Your default password is 1234. Please change this to a more secure password.`,
-    };
-
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        res.status(400);
-        console.log(error);
-        throw new Error(
-          "Confirmation code could not be sent to email. Please try again"
-        );
-      } else {
-        res.status(200).send(`Email sent: ${info.response}`);
-      }
-    });
-  } else {
-    res.status(400);
-    throw new Error("Invalid user data");
-  }
-});
-
 // @desc: Get All Hosts
 // @route: GET /api/hosts
 // @access: Private
@@ -112,31 +38,6 @@ const getHost = asyncHandler(async (req, res) => {
     [id]
   );
 
-  res.status(200).json(host.rows[0]);
-});
-
-// @desc: Delete A Host
-// @route: GET /api/hosts/:id
-// @access: Private
-const deleteHost = asyncHandler(async (req, res) => {
-  const id = req.params.id;
-
-  if (!id) {
-    res.status(400);
-    throw new Error("Please provide an id");
-  }
-
-  const hostExists = await pool.query(
-    "SELECT * FROM hosts WHERE host_uuid = $1",
-    [id]
-  );
-
-  if (hostExists.rowCount === 0) {
-    res.status(400);
-    throw new Error(`Host with id: ${id} does not exist`);
-  }
-
-  const host = await pool.query("DELETE FROM hosts WHERE host_uuid = $1", [id]);
   res.status(200).json(host.rows[0]);
 });
 
@@ -326,10 +227,8 @@ const updateHostPassword = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
-  registerHost,
   getHosts,
   getHost,
-  deleteHost,
   loginHost,
   updateHostPassword,
   getConfirmationCode,

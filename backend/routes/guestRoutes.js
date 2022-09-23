@@ -38,7 +38,7 @@ router.get("/", getGuests);
  * paths:
  *  /api/guests/host/:id:
  *    get:
- *      description: Use to get all guests
+ *      description: Use to get all guests in connection with a host
  *      responses:
  *        '200':
  *          description: Guests successfully fetched
